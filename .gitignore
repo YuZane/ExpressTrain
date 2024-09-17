@@ -1,5 +1,7 @@
 *.d
 *.o
+Soruce/Project/Listings
+Soruce/Project/Objects
 Soruce\Project\Listings\*
 Soruce\Project\Objects\*
 ExpressTrain.uvguix*
