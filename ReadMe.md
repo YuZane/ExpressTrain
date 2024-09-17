@@ -1,4 +1,4 @@
-## init
+#### init
 echo "# ExpressTrain" >> README.md
 git init
 git add README.md
