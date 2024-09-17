@@ -1,0 +1,6 @@
+*.d
+*.o
+Soruce\Project\Listings\*
+Soruce\Project\Objects\*
+ExpressTrain.uvguix*
+EventRecorderStub.scvd
