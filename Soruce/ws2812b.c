@@ -2,11 +2,14 @@
 #include "platform.h"
 #include "gpio_key_input.h"
 
+#define PIXEL_MAX 12
+
 //模拟的ns，不准确！！！
 void delay_ns(float a)
 {
-	int times = (a * 18 + 50) / 100
-	for (int j; j < times; j++)
+	int j = 0;
+	int times = (a * 18 + 50) / 100;
+	for (j = 0; j < times; j++)
 		NOP();
 }
 
@@ -210,8 +213,7 @@ void colorWipe(uint32_t c, uint8_t wait) {
 	}
 }
  
-void //ICACHE_FLASH_ATTR
-WS2812B_Init(void) {
+void WS2812B_Init(void) {
 	setAllColor(0);
 	setAllPixel();
 }

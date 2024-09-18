@@ -97,31 +97,6 @@ void GPIO_Configure(void)
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
-//模拟的ns，不准确！！！
-void delay_ns(float a)
-{
-	int times = (a * 18 + 50) / 100
-	for (int j; j < times; j++)
-		NOP();
-}
-
-//0码
-void GPIO_0()
-{
-	digitalWrite(RGB_PIN,HIGH);
-	delay_ns(300);
-	digitalWrite(RGB_PIN,LOW);
-	delayMicroseconds(1);
-}
-//1码
-void GPIO_1()
-{
-	digitalWrite(RGB_PIN,HIGH);
-	delayMicroseconds(1);
-	digitalWrite(RGB_PIN,LOW);
-	delay_ns(300);
-}
-
 /***********************************************************************************************************************
 	* @brief
 	* @note	 none
@@ -168,8 +143,8 @@ void KEY_FSM_Handler(uint8_t *State, uint8_t *Count, uint8_t InputLevel, uint8_t
 	}
 }
 
-export void WS2812B_Init(void);
-export void WS2812B_Test(void);
+extern void WS2812B_Init(void);
+extern void WS2812B_Test(void);
 /***********************************************************************************************************************
 * @brief
 * @note	 none
