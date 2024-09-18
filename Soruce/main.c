@@ -63,12 +63,12 @@ int main(void)
 {
     PLATFORM_Init();
 
-		//i2c2
+    //i2c2
+    GPIO_KEY_Input_Sample();
     EXTI_Interrupt_Sample();
     I2C_Master_Polling_Sample();
 		//uart2
     UART_Interrupt_Sample();
-    //GPIO_KEY_Input_Sample();
 		
 
     while (1)
