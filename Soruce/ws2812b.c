@@ -10,7 +10,7 @@ void delay_ns(float a)
 	int j = 0;
 	int times = (a * 18 + 50) / 100;
 	for (j = 0; j < times; j++)
-		NOP();
+		__NOP();
 }
 
 //0码
