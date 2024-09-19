@@ -3,7 +3,7 @@
 #include "gpio_key_input.h"
 
 #define PIXEL_MAX 60
-
+#if 1
 #define NOP_1 __NOP()
 #define NOP_2 NOP_1;NOP_1;
 #define NOP_3 NOP_2;NOP_1;
@@ -11,8 +11,37 @@
 #define NOP_8 NOP_4;NOP_4;
 #define NOP_16 NOP_8;NOP_8;
 
-#define DELAY_300_NS NOP_3
-#define DELAY_800_NS NOP_8;NOP_1
+#define DELAY_83_33_NS NOP_1
+#define DELAY_300_NS NOP_4
+#define DELAY_800_NS NOP_8;NOP_2
+
+#define DELAY_1_US NOP_8;NOP_4
+#define DELAY_2_US DELAY_1_US;DELAY_1_US
+#define DELAY_4_US DELAY_2_US;DELAY_2_US
+#define DELAY_8_US DELAY_4_US;DELAY_4_US
+#define DELAY_16_US DELAY_8_US;DELAY_8_US
+#define DELAY_32_US DELAY_16_US;DELAY_16_US
+#define DELAY_64_US DELAY_32_US;DELAY_32_US
+#else
+#define NOP __NOP()
+
+// 生成N个NOP的宏
+#define GENERATE_NOP(n) (n == 1 ? NOP : (GENERATE_NOP(n - 1); NOP))
+
+// 具体延迟定义
+#define DELAY_NS(n) GENERATE_NOP(n / 83) // 以83.33ns为单位
+#define DELAY_US(n) GENERATE_NOP(n * 12)  // 假设1us = 12 NOPs
+
+// 示例使用
+#define DELAY_300_NS DELAY_NS(300)
+#define DELAY_1_US DELAY_US(1)
+#define DELAY_2_US DELAY_US(2)
+#define DELAY_4_US DELAY_US(4)
+#define DELAY_8_US DELAY_US(8)
+#define DELAY_16_US DELAY_US(16)
+#define DELAY_32_US DELAY_US(32)
+#define DELAY_64_US DELAY_US(64)
+#endif
 
  //模拟的ns，不准确！！！
 //12MHz
@@ -51,7 +80,7 @@ void SEND_WS_1()
 void SEND_RESET()
 {
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
-	delay_ns(30000);
+	delay_ns(50000);
 }
 //直接操作寄存器（最快）
 // #define RGB_H   GPIOA->ODR |= (1<<2)
