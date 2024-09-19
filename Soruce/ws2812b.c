@@ -33,7 +33,7 @@
 #define DELAY_US(n) GENERATE_NOP(n * 12)  // 假设1us = 12 NOPs
 
 // 示例使用
-#define DELAY_300_NS DELAY_NS(300)
+#define DELAY_300_NS DELAY_NS(300) 
 #define DELAY_1_US DELAY_US(1)
 #define DELAY_2_US DELAY_US(2)
 #define DELAY_4_US DELAY_US(4)
@@ -133,7 +133,7 @@ WS2812BSend_24bit(uint8_t R, uint8_t G, uint8_t B) {
 	WS2812Send_8bit(B);
 }
 //delay for millisecond
-void HAL_Delay(int time) {
+void HAL_Delay_MS(int time) {
 	delay_ns(time * 1000000);
 }
  
@@ -204,7 +204,7 @@ void rainbow(uint8_t wait) {
 		for (i = 0; i < PIXEL_MAX; i++) {
 			setOneColor(i, Wheel((i + j) & 255));
 		}
-		HAL_Delay(wait);
+		HAL_Delay_MS(wait);
 	}
 	setAllPixel();
 }
@@ -216,7 +216,7 @@ void rainbowCycle(uint8_t wait) {
 		for (i = 0; i < PIXEL_MAX; i++) {
 			setOneColor(i, Wheel(((i * 256 / PIXEL_MAX) + j) & 255));
 		}
-		HAL_Delay(wait);
+		HAL_Delay_MS(wait);
 	}
 	setAllPixel();
 }
@@ -229,7 +229,7 @@ void theaterChase(uint32_t c, uint8_t wait) {
 					{
 				setOneColor(i + q, c);
 			}
-			HAL_Delay(wait);
+			HAL_Delay_MS(wait);
  
 			for (i = 0; i < PIXEL_MAX; i = i + 1) //turn every one pixel off
 					{
@@ -250,7 +250,7 @@ void theaterChaseRainbow(uint8_t wait) {
 				setOneColor(i + q, Wheel((i + j) % 255));
 			}
  
-			HAL_Delay(wait);
+			HAL_Delay_MS(wait);
  
 			for (i = 0; i < PIXEL_MAX; i = i + 1) //turn every one pixel off
 					{
@@ -265,7 +265,7 @@ void colorWipe(uint32_t c, uint8_t wait) {
 	uint16_t i = 0;
 	for (i = 0; i < PIXEL_MAX; i++) {
 		setOneColor(i, c);
-		HAL_Delay(wait);
+		HAL_Delay_MS(wait);
 	}
 }
  
@@ -276,7 +276,7 @@ void WS2812B_Init(void) {
  
 void WS2812B_Test(void) {
 	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-	// HAL_Delay(500);
+	HAL_Delay_MS(5000);
 	setAllColor(0xff0000);
 	setAllPixel();
 	SEND_RESET();
