@@ -4,31 +4,44 @@
 
 #define PIXEL_MAX 60
 
+#define NOP_1 __NOP()
+#define NOP_2 NOP_1;NOP_1;
+#define NOP_3 NOP_2;NOP_1;
+#define NOP_4 NOP_2;NOP_2;
+#define NOP_8 NOP_4;NOP_4;
+#define NOP_16 NOP_8;NOP_8;
+
+#define DELAY_300_NS NOP_3
+#define DELAY_800_NS NOP_8;NOP_1
+
 //模拟的ns，不准确！！！
-//12MHz
-void delay_ns(float a)
-{
-	int j = 0;
-	int times = (a * 3 + 125) / 250;
-	for (j = 0; j < times; j++)
-		__NOP();
-}
+//12MHz 83.333ns
+// void delay_ns_300()
+// {
+// 	NOP_3;
+// }
+
+// void delay_ns_800()
+// {
+// 	NOP_8;
+// 	NOP_1;
+// }
 
 //0码
 void SEND_WS_0()
 {
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_SET);
-	delay_ns(300);
+	DELAY_300_NS;
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
-	delay_ns(800);
+	DELAY_800_NS;
 }
 //1码
 void SEND_WS_1()
 {
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_SET);
-	delay_ns(800);
+	DELAY_800_NS;
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
-	delay_ns(300);
+	DELAY_300_NS;
 }
 
 //1码
@@ -231,7 +244,7 @@ void WS2812B_Init(void) {
  
 void WS2812B_Test(void) {
 	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-	HAL_Delay(500);
+	// HAL_Delay(500);
 	setAllColor(0xff0000);
 	setAllPixel();
 	SEND_RESET();
