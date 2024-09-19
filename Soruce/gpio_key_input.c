@@ -74,26 +74,26 @@ void GPIO_Configure(void)
 
 	/* K1->PC4 */
 	GPIO_StructInit(&GPIO_InitStruct);
-	GPIO_InitStruct.GPIO_Pin	= GPIO_Pin_4;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;
 	GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 	/* K2->PC5 */
 	GPIO_StructInit(&GPIO_InitStruct);
-	GPIO_InitStruct.GPIO_Pin	= GPIO_Pin_5;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 	/* K3->PB1 K4->PB2 */
 	GPIO_StructInit(&GPIO_InitStruct);
-	GPIO_InitStruct.GPIO_Pin	= GPIO_Pin_1 | GPIO_Pin_2;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	// PA2
 	GPIO_StructInit(&GPIO_InitStruct);
-	GPIO_InitStruct.GPIO_Pin	= GPIO_Pin_2;
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 

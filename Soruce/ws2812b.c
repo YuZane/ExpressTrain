@@ -2,7 +2,7 @@
 #include "platform.h"
 #include "gpio_key_input.h"
 
-#define PIXEL_MAX 12
+#define PIXEL_MAX 60
 
 //模拟的ns，不准确！！！
 //12MHz
@@ -30,6 +30,16 @@ void SEND_WS_1()
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
 	delay_ns(300);
 }
+
+//1码
+void SEND_RESET()
+{
+	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
+	delay_ns(30000);
+}
+//直接操作寄存器（最快）
+// #define RGB_H   GPIOA->ODR |= (1<<2)
+// #define RGB_L   GPIOA->ODR &= ~(1<<2)
 /*
  #define GPIO_OUTPUT_SET(gpio_no, bit_value) \
 	gpio_output_set(bit_value<<gpio_no, ((~bit_value)&0x01)<<gpio_no, 1<<gpio_no,0)
@@ -222,11 +232,10 @@ void WS2812B_Init(void) {
 void WS2812B_Test(void) {
 	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
 	HAL_Delay(500);
-	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-		HAL_Delay(500);
-	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-	rainbowCycle(20);
-	theaterChaseRainbow(50);
-	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+	setAllColor(0xff0000);
+	setAllPixel();
+	SEND_RESET();
+	// rainbowCycle(20);
+	// theaterChaseRainbow(50);
 }
  
