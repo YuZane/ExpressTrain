@@ -45,12 +45,10 @@
 
  //模拟的ns，不准确！！！
 //12MHz
-void delay_ns(float a)
+void delay_ns(float nus)
 {
-	int j = 0;
-	int times = (a * 3 + 125) / 250;
-	for (j = 0; j < times; j++)
-		__NOP();
+  //延时程序n为1时大概延时时间为370ns左右
+	while(nus--);
 }
 
 // void delay_ns_800()
@@ -63,24 +61,24 @@ void delay_ns(float a)
 void SEND_WS_0()
 {
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_SET);
-	DELAY_300_NS;
+	delay_ns(1);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
-	DELAY_800_NS;
+	delay_ns(7);
 }
 //1码
 void SEND_WS_1()
 {
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_SET);
-	DELAY_800_NS;
+delay_ns(7);
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
-	DELAY_300_NS;
+delay_ns(1);
 }
 
 //1码
 void SEND_RESET()
 {
 	GPIO_WriteBit(GPIOA, GPIO_Pin_2, Bit_RESET);
-	delay_ns(50000);
+	delay_ns(50);
 }
 //直接操作寄存器（最快）
 // #define RGB_H   GPIOA->ODR |= (1<<2)
@@ -134,7 +132,7 @@ WS2812BSend_24bit(uint8_t R, uint8_t G, uint8_t B) {
 }
 //delay for millisecond
 void HAL_Delay_MS(int time) {
-	delay_ns(time * 1000000);
+	delay_ns(time * 100);
 }
  
 static uint8_t rBuffer[PIXEL_MAX] = { 0 };
@@ -276,8 +274,8 @@ void WS2812B_Init(void) {
  
 void WS2812B_Test(void) {
 	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-	HAL_Delay_MS(5000);
-	setAllColor(0xff0000);
+	PLATFORM_DelayMS(5000);
+	setAllColor(0xFFFFFF);
 	setAllPixel();
 	SEND_RESET();
 	// rainbowCycle(20);
