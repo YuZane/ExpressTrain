@@ -222,5 +222,6 @@ void WS2812B_Test(void) {
 	HAL_Delay(500);
 	rainbowCycle(20);
 	theaterChaseRainbow(50);
+	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
 }
  
