@@ -5,10 +5,11 @@
 #define PIXEL_MAX 12
 
 //模拟的ns，不准确！！！
+//12MHz
 void delay_ns(float a)
 {
 	int j = 0;
-	int times = (a * 18 + 50) / 100;
+	int times = (a * 3 + 125) / 250;
 	for (j = 0; j < times; j++)
 		__NOP();
 }
@@ -125,7 +126,7 @@ void setAllPixel(void) {
 		WS2812BSend_24bit(rBuffer[i], gBuffer[i], bBuffer[i]);
 	}
 }
- 
+
 uint32_t Color(uint8_t r, uint8_t g, uint8_t b) {
 	return ((uint32_t) r << 16) | ((uint32_t) g << 8) | b;
 }
@@ -219,7 +220,11 @@ void WS2812B_Init(void) {
 }
  
 void WS2812B_Test(void) {
+	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
 	HAL_Delay(500);
+	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+		HAL_Delay(500);
+	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
 	rainbowCycle(20);
 	theaterChaseRainbow(50);
 	printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
