@@ -14,12 +14,15 @@
 #define DELAY_300_NS NOP_3
 #define DELAY_800_NS NOP_8;NOP_1
 
-//模拟的ns，不准确！！！
-//12MHz 83.333ns
-// void delay_ns_300()
-// {
-// 	NOP_3;
-// }
+ //模拟的ns，不准确！！！
+//12MHz
+void delay_ns(float a)
+{
+	int j = 0;
+	int times = (a * 3 + 125) / 250;
+	for (j = 0; j < times; j++)
+		__NOP();
+}
 
 // void delay_ns_800()
 // {
