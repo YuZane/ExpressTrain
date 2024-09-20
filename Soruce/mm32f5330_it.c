@@ -354,5 +354,54 @@ void EXTI0_IRQHandler(void)
     }
 }
 
+/***********************************************************************************************************************
+  * @brief  This function handles TIM2
+  * @note   none
+  * @param  none
+  * @retval none
+  *********************************************************************************************************************/
+void TIM2_IRQHandler(void)
+{
+    if (RESET != TIM_GetITStatus(TIM2, TIM_IT_Update))
+    {
+        // PLATFORM_LED_Toggle(LED2);
+
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+    }
+}
+
+/***********************************************************************************************************************
+  * @brief  This function handles TIM5
+  * @note   none
+  * @param  none
+  * @retval none
+  *********************************************************************************************************************/
+void TIM5_IRQHandler(void)
+{
+  static int a = 0;
+    a = !a;
+    if (RESET != TIM_GetITStatus(TIM5, TIM_IT_Update))
+    {
+        // PLATFORM_LED_Toggle(LED3);
+        GPIO_WriteBit(GPIOA, GPIO_Pin_2, a);
+
+        TIM_ClearITPendingBit(TIM5, TIM_IT_Update);
+    }
+}
+
+void DMA1_CH2_IRQHandler(void)
+{
+    if (SET == DMA_GetITStatus(DMA1_IT_TC2))
+    {
+      printf("yz dma\r\n");
+        TIM_Cmd(TIM1, ENABLE);
+        DMA_Cmd(DMA1_Channel2, DISABLE);
+
+        // USART_TX_DMA_InterruptFlag = 1;
+        
+        DMA_ClearITPendingBit(DMA2_IT_TC2);
+    }
+}
+
 /********************************************** (C) Copyright MindMotion **********************************************/
 

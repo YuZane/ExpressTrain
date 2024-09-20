@@ -36,6 +36,8 @@
 #include "uart_interrupt.h"
 #include "gpio_key_input.h"
 #include "exti_interrupt.h"
+#include "tim2_5_timebase.h"
+#include "tim1_8_pwm_output.h"
 #include "main.h"
 
 /**
@@ -65,6 +67,8 @@ int main(void)
 
     //i2c2
     GPIO_KEY_Input_Sample();
+    TIM1_8_PWM_Output_Sample();
+    TIM2_5_TimeBase_Sample();
     EXTI_Interrupt_Sample();
     I2C_Master_Polling_Sample();
 		//uart2

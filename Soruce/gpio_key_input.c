@@ -168,9 +168,9 @@ void GPIO_KEY_Input_Sample(void)
 
 	printf("\r\nPress K1-K4...");
 	WS2812B_Init();
-	while (1) {
-		WS2812B_Test();
-	}
+	// while (1) {
+	// 	WS2812B_Test();
+	// }
 	// while (1)
 	// {
 	// KEY_FSM_Handler(&KeyState[0], &KeyCount[0], GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET,	 "K1");
