@@ -393,14 +393,20 @@ void DMA1_CH2_IRQHandler(void)
 {
     if (SET == DMA_GetITStatus(DMA1_IT_TC2))
     {
-        TIM_DMACmd(TIM1, TIM_DMA_CC1, DISABLE);
-        TIM_Cmd(TIM1, ENABLE);
+        DMA_ClearFlag(DMA1_FLAG_GL2);
+        DMA_ClearFlag(DMA1_FLAG_TC2);
+        DMA_ClearFlag(DMA1_FLAG_HT2);
+        DMA_ClearFlag(DMA1_FLAG_TE2);
         DMA_Cmd(DMA1_Channel2, DISABLE);
+        DMA_ClearITPendingBit(DMA2_IT_TC2);
+        TIM_DMACmd(TIM1, TIM_DMA_CC1, DISABLE);
+        TIM_Cmd(TIM1, DISABLE);
+        
         printf("yz dma\r\n");
 
         // USART_TX_DMA_InterruptFlag = 1;
         
-        DMA_ClearITPendingBit(DMA2_IT_TC2);
+        
     }
 }
 

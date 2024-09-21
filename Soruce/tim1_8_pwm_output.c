@@ -65,7 +65,7 @@
   * @param  none
   * @retval none
   *********************************************************************************************************************/
-void TIM1_DMA_Interrupt(uint32_t *Buffer, uint8_t Length)
+void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length)
 {
     DMA_InitTypeDef  DMA_InitStruct;
     NVIC_InitTypeDef NVIC_InitStruct;
@@ -100,6 +100,9 @@ void TIM1_DMA_Interrupt(uint32_t *Buffer, uint8_t Length)
 
     // USART_TX_DMA_InterruptFlag = 0;
     DMA_Cmd(DMA1_Channel2, ENABLE);
+  
+    TIM_DMACmd(TIM1, TIM_DMA_CC1, ENABLE);
+    TIM_Cmd(TIM1, ENABLE);
 }
 
 /***********************************************************************************************************************
@@ -118,19 +121,19 @@ void TIM1_8_Configure(void)
     uint32_t TimerPeriod8 = 0, Channel1Pulse8 = 0, Channel2Pulse8 = 0, Channel3Pulse8 = 0;
 
     /* Compute the value to be set in ARR regiter to generate signal frequency at 100 Khz */
-    TimerPeriod1 = TIM_GetTIMxClock(TIM1) / 1000000;
-    TimerPeriod8 = TIM_GetTIMxClock(TIM8) / 1000000;
+    TimerPeriod1 = TIM_GetTIMxClock(TIM1) / 900000;
+    TimerPeriod8 = TIM_GetTIMxClock(TIM8) / 900000;
 
     /* Compute CCR1 value to generate a duty cycle at 70% for channel 1 */
     Channel1Pulse1 = (uint32_t)0 * TimerPeriod1 / 1000;
     Channel1Pulse8 = (uint32_t)0 * TimerPeriod8 / 1000;
 
     /* Compute CCR2 value to generate a duty cycle at 50% for channel 2 */
-    Channel2Pulse1 = (uint32_t)500 * TimerPeriod1 / 1000;
+    Channel2Pulse1 = (uint32_t)300 * TimerPeriod1 / 1000;
     Channel2Pulse8 = (uint32_t)500 * TimerPeriod8 / 1000;
 
     /* Compute CCR3 value to generate a duty cycle at 25% for channel 3 */
-    Channel3Pulse1 = (uint32_t)250 * TimerPeriod1 / 1000;
+    Channel3Pulse1 = (uint32_t)700 * TimerPeriod1 / 1000;
     Channel3Pulse8 = (uint32_t)250 * TimerPeriod8 / 1000;
 
    printf("\r\nT1:%d, %d, %d, %d", TimerPeriod1, Channel1Pulse1, Channel2Pulse1, Channel3Pulse1);
@@ -181,7 +184,30 @@ void TIM1_8_Configure(void)
     TIM_CtrlPWMOutputs(TIM1, ENABLE);
 }
 
-u32 ggbuf[120];
+#define LED_NUM 60
+typedef struct {
+    u32 G[8];
+    u32 R[8];
+    u32 B[8];
+}one_color_t;
+
+one_color_t ColorBuf[64][LED_NUM + 4];
+//show GRB
+void setAllColor_dma(one_color_t *color, uint32_t c) {
+    uint8_t r, g, b;
+    r = (uint8_t) (c >> 16);
+    g = (uint8_t) (c >> 8);
+    b = (uint8_t) c;
+    uint8_t i, j;
+    for (i = 1; i < LED_NUM + 1; i++) {
+        for (j = 0; j < 8; j++) {
+            color[i].R[j] = (r & (1 << j)) ? 0x82 : 0x37;
+            color[i].G[j] = (g & (1 << j)) ? 0x82 : 0x37;
+            color[i].B[j] = (b & (1 << j)) ? 0x82 : 0x37;
+        }
+    }
+}
+
 
 /***********************************************************************************************************************
   * @brief
@@ -193,22 +219,27 @@ void TIM1_8_PWM_Output_Sample(void)
 {
   int i = 0;
   static int j = 0;
-    for (i = 0; i < 89; i++) {
-      // ggbuf[i] = i;
-      if (i % 2) {
-        ggbuf[i] = 0x37;
-      } else {
-        ggbuf[i] = 0x82;
-      }
-    }
-     printf("\r\nTest %s, ggbuf1 %d, ggbuf2 %d", __FUNCTION__, ggbuf[1], ggbuf[2]); 
+    // for (i = 0; i < 89; i++) {
+    //   // ggbuf[i] = i;
+    //   if (i % 2) {
+    //     ggbuf[i] = 0x37;
+    //   } else {
+    //     ggbuf[i] = 0x82;
+    //   }
+    // }
+    printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+    setAllColor_dma(ColorBuf[0], 0xff0000);
+    printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+    // printf("\r\nTest %s, ggbuf1 %d, ggbuf2 %d", __FUNCTION__, ggbuf[1], ggbuf[2]); 
 
     TIM1_8_Configure();
-    ggbuf[59] = 0;
-    ggbuf[58] = 0;
-    ggbuf[0] = 0;
-    ggbuf[1] = 0;
-    TIM1_DMA_Interrupt(ggbuf, 60);
+    // printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+    // ggbuf[59] = 0;
+    // ggbuf[58] = 0;
+    // ggbuf[0] = 0;
+    // ggbuf[1] = 0;
+    // printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+
     printf("\r\nRemove C18 & C19 & X2(32.768KHz).");
 
     printf("\r\nUse Logic Analyzer to monitor PA8  / PA9  / PA10 output.");
@@ -216,8 +247,9 @@ void TIM1_8_PWM_Output_Sample(void)
 
     while (1)
     {
+        TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
         PLATFORM_LED_Toggle(LED1);
-        PLATFORM_DelayMS(100);
+        PLATFORM_DelayMS(1000);
     }
 }
 
