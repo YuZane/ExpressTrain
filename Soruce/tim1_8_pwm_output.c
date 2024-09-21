@@ -59,6 +59,9 @@
 
 /* Private functions **************************************************************************************************/
 
+#define LED_HIGH (140)
+#define LED_LOW (60)
+
 /***********************************************************************************************************************
   * @brief
   * @note   none
@@ -191,7 +194,7 @@ typedef struct {
     u32 B[8];
 }one_color_t;
 
-one_color_t ColorBuf[64][LED_NUM + 4];
+one_color_t ColorBuf[3][LED_NUM + 4];
 //show GRB
 void setAllColor_dma(one_color_t *color, uint32_t c) {
     uint8_t r, g, b;
@@ -201,9 +204,9 @@ void setAllColor_dma(one_color_t *color, uint32_t c) {
     uint8_t i, j;
     for (i = 1; i < LED_NUM + 1; i++) {
         for (j = 0; j < 8; j++) {
-            color[i].R[j] = (r & (1 << j)) ? 0x82 : 0x37;
-            color[i].G[j] = (g & (1 << j)) ? 0x82 : 0x37;
-            color[i].B[j] = (b & (1 << j)) ? 0x82 : 0x37;
+            color[i].R[j] = (r & (1 << j)) ? LED_HIGH : LED_LOW;
+            color[i].G[j] = (g & (1 << j)) ? LED_HIGH : LED_LOW;
+            color[i].B[j] = (b & (1 << j)) ? LED_HIGH : LED_LOW;
         }
     }
 }
@@ -228,7 +231,7 @@ void TIM1_8_PWM_Output_Sample(void)
     //   }
     // }
     printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-    setAllColor_dma(ColorBuf[0], 0xff0000);
+    setAllColor_dma(ColorBuf[1], 0x00ff00);
     printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
     // printf("\r\nTest %s, ggbuf1 %d, ggbuf2 %d", __FUNCTION__, ggbuf[1], ggbuf[2]); 
 
@@ -247,9 +250,12 @@ void TIM1_8_PWM_Output_Sample(void)
 
     while (1)
     {
-        TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[0], (LED_NUM + 2) * 24);
+        
         PLATFORM_LED_Toggle(LED1);
         PLATFORM_DelayMS(1000);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+				PLATFORM_DelayMS(1000);
     }
 }
 
