@@ -1,32 +1,3 @@
-/***********************************************************************************************************************
-    @file    tim1_8_pwm_output.c
-    @author  FAE Team
-    @date    08-May-2023
-    @brief   THIS FILE PROVIDES ALL THE SYSTEM FUNCTIONS.
-  **********************************************************************************************************************
-    @attention
-
-    <h2><center>&copy; Copyright(c) <2023> <MindMotion></center></h2>
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-    following conditions are met:
-    1. Redistributions of source code must retain the above copyright notice,
-       this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
-       the following disclaimer in the documentation and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or
-       promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-    WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *********************************************************************************************************************/
-
-/* Define to prevent recursive inclusion */
 #define _TIM1_8_PWM_OUTPUT_C_
 
 /* Files include */
@@ -34,40 +5,20 @@
 #include "platform.h"
 #include "tim1_8_pwm_output.h"
 
-/**
-  * @addtogroup MM32F5330_LibSamples
-  * @{
-  */
 
-/**
-  * @addtogroup TIM1_8
-  * @{
-  */
-
-/**
-  * @addtogroup TIM1_8_PWM_Output
-  * @{
-  */
-
-/* Private typedef ****************************************************************************************************/
-
-/* Private define *****************************************************************************************************/
-
-/* Private macro ******************************************************************************************************/
-
-/* Private variables **************************************************************************************************/
-
-/* Private functions **************************************************************************************************/
-
+#define LED_NUM 60
 #define LED_HIGH (140)
 #define LED_LOW (60)
 
-/***********************************************************************************************************************
-  * @brief
-  * @note   none
-  * @param  none
-  * @retval none
-  *********************************************************************************************************************/
+typedef struct {
+    u32 G[8];
+    u32 R[8];
+    u32 B[8];
+}one_color_t;
+
+one_color_t ColorBuf[3][LED_NUM + 4];
+
+
 void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length)
 {
     DMA_InitTypeDef  DMA_InitStruct;
@@ -187,30 +138,31 @@ void TIM1_8_Configure(void)
     TIM_CtrlPWMOutputs(TIM1, ENABLE);
 }
 
-#define LED_NUM 60
-typedef struct {
-    u32 G[8];
-    u32 R[8];
-    u32 B[8];
-}one_color_t;
-
-one_color_t ColorBuf[3][LED_NUM + 4];
-//show GRB
-void setAllColor_dma(one_color_t *color, uint32_t c) {
+void setOneColor_dma(one_color_t *color, uint32_t rgb) {
     uint8_t r, g, b;
-    r = (uint8_t) (c >> 16);
-    g = (uint8_t) (c >> 8);
-    b = (uint8_t) c;
-    uint8_t i, j;
+    r = (uint8_t) (rgb >> 16);
+    g = (uint8_t) (rgb >> 8);
+    b = (uint8_t) rgb;
+    uint8_t j;
+		for (j = 0; j < 8; j++) {
+				color->R[j] = (r & (1 << j)) ? LED_HIGH : LED_LOW;
+				color->G[j] = (g & (1 << j)) ? LED_HIGH : LED_LOW;
+				color->B[j] = (b & (1 << j)) ? LED_HIGH : LED_LOW;
+		}
+}
+
+void setAllColor_dma(one_color_t *color, uint32_t rgb) {
+    uint8_t i;
     for (i = 1; i < LED_NUM + 1; i++) {
-        for (j = 0; j < 8; j++) {
-            color[i].R[j] = (r & (1 << j)) ? LED_HIGH : LED_LOW;
-            color[i].G[j] = (g & (1 << j)) ? LED_HIGH : LED_LOW;
-            color[i].B[j] = (b & (1 << j)) ? LED_HIGH : LED_LOW;
-        }
+        setOneColor_dma(&color[i], rgb);
     }
 }
 
+void LED_CONFIG_ALL(u32 rgb)
+{
+		setAllColor_dma(ColorBuf[2], rgb);
+		TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
+}
 
 /***********************************************************************************************************************
   * @brief
@@ -220,50 +172,24 @@ void setAllColor_dma(one_color_t *color, uint32_t c) {
   *********************************************************************************************************************/
 void TIM1_8_PWM_Output_Sample(void)
 {
-  int i = 0;
-  static int j = 0;
-    // for (i = 0; i < 89; i++) {
-    //   // ggbuf[i] = i;
-    //   if (i % 2) {
-    //     ggbuf[i] = 0x37;
-    //   } else {
-    //     ggbuf[i] = 0x82;
-    //   }
-    // }
+		int i = 0;
+		static int j = 0;
+
     printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+		setAllColor_dma(ColorBuf[0], 0x000000);
     setAllColor_dma(ColorBuf[1], 0x00ff00);
     printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-    // printf("\r\nTest %s, ggbuf1 %d, ggbuf2 %d", __FUNCTION__, ggbuf[1], ggbuf[2]); 
 
     TIM1_8_Configure();
-    // printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-    // ggbuf[59] = 0;
-    // ggbuf[58] = 0;
-    // ggbuf[0] = 0;
-    // ggbuf[1] = 0;
-    // printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
-
-    printf("\r\nRemove C18 & C19 & X2(32.768KHz).");
-
-    printf("\r\nUse Logic Analyzer to monitor PA8  / PA9  / PA10 output.");
-    printf("\r\nUse Logic Analyzer to monitor PC13 / PC14 / PC15 output.");
-
     while (1)
     {
-				setAllColor_dma(ColorBuf[1], 0x000000);
-				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+				LED_CONFIG_ALL(0x000000);
 				PLATFORM_DelayMS(1000);
-			
-			  setAllColor_dma(ColorBuf[1], 0xff0000);
-				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
-        PLATFORM_DelayMS(1000);
-			
-				setAllColor_dma(ColorBuf[1], 0x00ff00);
-				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+				LED_CONFIG_ALL(0xf00000);
 				PLATFORM_DelayMS(1000);
-			
-				setAllColor_dma(ColorBuf[1], 0x0000ff);
-				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+				LED_CONFIG_ALL(0x00f000);
+				PLATFORM_DelayMS(1000);
+				LED_CONFIG_ALL(0x0000f0);
 				PLATFORM_DelayMS(1000);
 			
 				PLATFORM_LED_Toggle(LED1);
