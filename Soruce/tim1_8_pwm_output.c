@@ -250,12 +250,23 @@ void TIM1_8_PWM_Output_Sample(void)
 
     while (1)
     {
-				TIM1_DMA_Interrupt((u32 *)ColorBuf[0], (LED_NUM + 2) * 24);
-        
-        PLATFORM_LED_Toggle(LED1);
-        PLATFORM_DelayMS(1000);
+				setAllColor_dma(ColorBuf[1], 0x000000);
 				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
 				PLATFORM_DelayMS(1000);
+			
+			  setAllColor_dma(ColorBuf[1], 0xff0000);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+        PLATFORM_DelayMS(1000);
+			
+				setAllColor_dma(ColorBuf[1], 0x00ff00);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+				PLATFORM_DelayMS(1000);
+			
+				setAllColor_dma(ColorBuf[1], 0x0000ff);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[1], (LED_NUM + 2) * 24);
+				PLATFORM_DelayMS(1000);
+			
+				PLATFORM_LED_Toggle(LED1);
     }
 }
 
