@@ -393,9 +393,10 @@ void DMA1_CH2_IRQHandler(void)
 {
     if (SET == DMA_GetITStatus(DMA1_IT_TC2))
     {
-      printf("yz dma\r\n");
+        TIM_DMACmd(TIM1, TIM_DMA_CC1, DISABLE);
         TIM_Cmd(TIM1, ENABLE);
         DMA_Cmd(DMA1_Channel2, DISABLE);
+        printf("yz dma\r\n");
 
         // USART_TX_DMA_InterruptFlag = 1;
         

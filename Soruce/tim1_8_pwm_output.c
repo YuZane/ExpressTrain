@@ -204,6 +204,10 @@ void TIM1_8_PWM_Output_Sample(void)
      printf("\r\nTest %s, ggbuf1 %d, ggbuf2 %d", __FUNCTION__, ggbuf[1], ggbuf[2]); 
 
     TIM1_8_Configure();
+    ggbuf[59] = 0;
+    ggbuf[58] = 0;
+    ggbuf[0] = 0;
+    ggbuf[1] = 0;
     TIM1_DMA_Interrupt(ggbuf, 60);
     printf("\r\nRemove C18 & C19 & X2(32.768KHz).");
 
