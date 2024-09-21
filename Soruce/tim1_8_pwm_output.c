@@ -279,7 +279,7 @@ void TIM1_8_PWM_Output_Sample(void)
     while (1)
     {
 				//setOneColor_dma(&ColorBuf[2][1], 0xff0000);
-				// Marquee(0xff0000);
+				Marquee(0xff0000);
         Breath(0xff0000);
 				#if 0
 				LED_CONFIG_ALL(0x000000);
