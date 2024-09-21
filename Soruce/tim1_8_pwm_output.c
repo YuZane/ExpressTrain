@@ -3,6 +3,7 @@
 /* Files include */
 #include <stdio.h>
 #include "platform.h"
+#include "rgbandhsv.h"
 #include "tim1_8_pwm_output.h"
 
 
@@ -14,9 +15,15 @@ typedef struct {
     u32 G[8];
     u32 R[8];
     u32 B[8];
-}one_color_t;
+}dma_color_t;
 
-one_color_t ColorBuf[3][LED_NUM + 4];
+typedef struct {
+	u8 R;
+	u8 G;
+	u8 B;
+}color_rgb_t;
+
+dma_color_t ColorBuf[3][LED_NUM + 4];
 
 
 void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length)
@@ -138,7 +145,7 @@ void TIM1_8_Configure(void)
     TIM_CtrlPWMOutputs(TIM1, ENABLE);
 }
 
-void setOneColor_dma(one_color_t *color, uint32_t rgb) {
+void setOneColor_dma(dma_color_t *color, uint32_t rgb) {
     uint8_t r, g, b;
     r = (uint8_t) (rgb >> 16);
     g = (uint8_t) (rgb >> 8);
@@ -151,7 +158,7 @@ void setOneColor_dma(one_color_t *color, uint32_t rgb) {
 		}
 }
 
-void setAllColor_dma(one_color_t *color, uint32_t rgb) {
+void setAllColor_dma(dma_color_t *color, uint32_t rgb) {
     uint8_t i;
     for (i = 1; i < LED_NUM + 1; i++) {
         setOneColor_dma(&color[i], rgb);
@@ -162,6 +169,17 @@ void LED_CONFIG_ALL(u32 rgb)
 {
 		setAllColor_dma(ColorBuf[2], rgb);
 		TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
+}
+
+void Marquee()
+{
+		int i = 1;
+		for (i = 1; i < LED_NUM + 1; i++) {
+				setOneColor_dma(&ColorBuf[2][i], 0xff0000);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
+				PLATFORM_DelayMS(40);
+				setOneColor_dma(&ColorBuf[2][i], 0x000000);
+		}
 }
 
 /***********************************************************************************************************************
@@ -179,10 +197,22 @@ void TIM1_8_PWM_Output_Sample(void)
 		setAllColor_dma(ColorBuf[0], 0x000000);
     setAllColor_dma(ColorBuf[1], 0x00ff00);
     printf("yz debug %s-%d\n", __FUNCTION__, __LINE__);
+    float h,s,v;
+    rgb2hsv(0xff, 0, 0, &h, &s, &v);
+    printf("yz debug %s-%d 0xff h %f s %f v %f\n", __FUNCTION__, __LINE__, h, s, v);
+    rgb2hsv(0x0f, 0, 0, &h, &s, &v);
+    printf("yz debug %s-%d 0x0f h %f s %f v %f\n", __FUNCTION__, __LINE__, h, s, v);
+    rgb2hsv(0xf0, 0, 0, &h, &s, &v);
+    printf("yz debug %s-%d 0xf0 h %f s %f v %f\n", __FUNCTION__, __LINE__, h, s, v);
+
 
     TIM1_8_Configure();
     while (1)
     {
+				LED_CONFIG_ALL(0x000000);
+				//setOneColor_dma(&ColorBuf[2][1], 0xff0000);
+				Marquee();
+				#if 0
 				LED_CONFIG_ALL(0x000000);
 				PLATFORM_DelayMS(1000);
 				LED_CONFIG_ALL(0xf00000);
@@ -191,8 +221,8 @@ void TIM1_8_PWM_Output_Sample(void)
 				PLATFORM_DelayMS(1000);
 				LED_CONFIG_ALL(0x0000f0);
 				PLATFORM_DelayMS(1000);
-			
-				PLATFORM_LED_Toggle(LED1);
+				#endif
+				// PLATFORM_LED_Toggle(LED1);
     }
 }
 

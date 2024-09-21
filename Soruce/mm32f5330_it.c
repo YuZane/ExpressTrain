@@ -402,7 +402,7 @@ void DMA1_CH2_IRQHandler(void)
         TIM_DMACmd(TIM1, TIM_DMA_CC1, DISABLE);
         TIM_Cmd(TIM1, DISABLE);
         
-        printf("yz dma\r\n");
+        // printf("yz dma\r\n");
 
         // USART_TX_DMA_InterruptFlag = 1;
         
