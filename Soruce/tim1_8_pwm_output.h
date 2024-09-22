@@ -50,7 +50,11 @@ void TIM1_8_Configure(void);
 void TIM1_8_PWM_Output_Sample(void);
 void LED_CONFIG_ALL(u32 rgb);
 void Marquee(u32 rgb);
-
+void Marquee_L2R(u32 rgb);
+void Marquee_R2L(u32 rgb);
+void Breath(u32 rgb);
+void Forward(u32 rgb);
+void Backward(u32 rgb);
 #ifdef __cplusplus
 }
 #endif

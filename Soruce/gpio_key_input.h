@@ -50,6 +50,7 @@ typedef struct {
 	u8 press;
 	u8 update;
 	u8 status;
+  u8 intr;
 } KeyState_t;
 
 void GPIO_Configure(void);

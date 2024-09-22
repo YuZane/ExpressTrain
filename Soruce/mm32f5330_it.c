@@ -34,9 +34,12 @@
 #include "platform.h"
 #include "i2c_master_polling.h"
 #include "uart_interrupt.h"
+#include "gpio_key_input.h"
 #include "paj7620u2.h"
 #include "mm32f5330_it.h"
 
+
+extern u32 dma_idle;
 /**
   * @addtogroup MM32F5330_LibSamples
   * @{
@@ -307,15 +310,19 @@ void EXTI2_IRQHandler(void)
   * @param  none
   * @retval none
   *********************************************************************************************************************/
+extern KeyState_t KeyState;
 void EXTI4_IRQHandler(void)
 {
     /* K1 */
     if (SET == EXTI_GetITStatus(EXTI_Line4))
     {
         PLATFORM_LED_Toggle(LED1);
-        udelay();
+        if (KeyState.intr) {
+          KeyState.intr = 0;
+          KeyState.update = 1;
+          printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
+        }
         EXTI_ClearITPendingBit(EXTI_Line4);
-        udelay();
     }
 }
 
@@ -398,7 +405,7 @@ void DMA1_CH2_IRQHandler(void)
         DMA_ClearITPendingBit(DMA2_IT_TC2);
         TIM_DMACmd(TIM1, TIM_DMA_CC1, DISABLE);
         TIM_Cmd(TIM1, DISABLE);
-        
+        dma_idle = 1;
         // printf("yz dma\r\n");
 
         // USART_TX_DMA_InterruptFlag = 1;

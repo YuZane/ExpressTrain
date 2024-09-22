@@ -24,6 +24,32 @@ typedef struct {
 }color_rgb_t;
 
 dma_color_t ColorBuf[3][LED_NUM + 4];
+u32 dma_idle = 1;
+
+
+/* 呼吸灯曲线表 */
+const uint16_t index_heart[] = {7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 11, 11, 12, 12, 
+                               13, 13, 14, 14, 15, 15, 16, 16, 17, 18, 18, 19, 20, 20, 21, 22, 23, 24, 25, 25, 26, 27, 28, 30, 31, 32, 33, 
+                               34, 36, 37, 38, 40, 41, 43, 45, 46, 48, 50, 52, 54, 56, 58, 60, 62, 65, 67, 70, 72, 75, 78, 81, 84, 87, 90, 
+                               94, 97, 101, 105, 109, 113, 117, 122, 126, 131, 136, 141, 146, 152, 158, 164, 170, 176, 183, 190, 197, 205, 
+                               213, 221, 229, 238, 238, 240, 247, 247, 247, 240, 238, 238, 229, 221, 213, 205, 197, 190,183, 176, 170, 164, 158, 152, 146, 
+                               141, 136, 131, 126, 122, 117, 113, 109, 105, 101, 97, 94, 90, 87, 84, 81, 78, 75, 72, 70, 67, 65, 62, 60, 58, 
+                               56, 54, 52, 50, 48, 46, 45, 43, 41, 40, 38, 37, 36, 34, 33, 32, 31, 30, 28, 27, 26, 25, 25, 24, 23, 22, 21, 20, 
+                               20, 19, 18, 18, 17, 16, 16, 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 10, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7};
+
+
+const uint16_t index_forward[] = {3 ,3, 3, 3, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 11, 11, 12, 12, 
+                               13, 13, 14, 14, 15, 15, 16, 16, 17, 18, 18, 19, 20, 20, 21, 22, 23, 24, 25, 25, 26, 27, 28, 30, 31, 32, 33, 
+                               34, 36, 37, 38, 40, 41, 43, 45, 46, 48, 50, 52, 54, 56, 58, 60, 62, 65, 67, 70, 72, 75, 78, 81, 84, 87, 90, 
+                               94, 97, 101, 105, 109, 113, 117, 122, 126, 131, 136, 141, 146, 152, 158, 164, 170, 176, 183, 190, 197, 205, 
+                               213, 221, 229, 238, 238, 240, 247, 247, 247};
+
+const uint16_t index_backward[] = {247, 247, 247, 240, 238, 238, 229, 221, 213, 205, 197, 190,183, 176, 170, 164, 158, 152, 146, 
+                               141, 136, 131, 126, 122, 117, 113, 109, 105, 101, 97, 94, 90, 87, 84, 81, 78, 75, 72, 70, 67, 65, 62, 60, 58, 
+                               56, 54, 52, 50, 48, 46, 45, 43, 41, 40, 38, 37, 36, 34, 33, 32, 31, 30, 28, 27, 26, 25, 25, 24, 23, 22, 21, 20, 
+                               20, 19, 18, 18, 17, 16, 16, 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 10, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8,
+                               7, 7, 7, 7, 7, 7, 3 ,3, 3, 3, 0, 0, 0};
+
 
 
 void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length)
@@ -63,6 +89,7 @@ void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length)
     DMA_Cmd(DMA1_Channel2, ENABLE);
   
     TIM_DMACmd(TIM1, TIM_DMA_CC1, ENABLE);
+    dma_idle = 0;
     TIM_Cmd(TIM1, ENABLE);
 }
 
@@ -97,7 +124,7 @@ void TIM1_8_Configure(void)
     Channel3Pulse1 = (uint32_t)700 * TimerPeriod1 / 1000;
     Channel3Pulse8 = (uint32_t)250 * TimerPeriod8 / 1000;
 
-   printf("\r\nT1:%d, %d, %d, %d", TimerPeriod1, Channel1Pulse1, Channel2Pulse1, Channel3Pulse1);
+  //  printf("\r\nT1:%d, %d, %d, %d", TimerPeriod1, Channel1Pulse1, Channel2Pulse1, Channel3Pulse1);
 //    printf("\r\nT8:%d, %d, %d, %d", TimerPeriod8, Channel1Pulse8, Channel2Pulse8, Channel3Pulse8);
 
     /* TIM1 */
@@ -174,6 +201,7 @@ void LED_CONFIG_ALL(u32 rgb)
 void Marquee(u32 rgb)
 {
 		int i = 1;
+    setAllColor_dma(ColorBuf[2], 0x000000);
 		for (i = 1; i < LED_NUM + 1; i++) {
 				setOneColor_dma(&ColorBuf[2][i], rgb);
 				TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
@@ -182,39 +210,30 @@ void Marquee(u32 rgb)
 		}
 }
 
-#if 1
-/* 呼吸灯曲线表 */
-const uint16_t index_wave[] = {7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 11, 11, 12, 12, 
-                               13, 13, 14, 14, 15, 15, 16, 16, 17, 18, 18, 19, 20, 20, 21, 22, 23, 24, 25, 25, 26, 27, 28, 30, 31, 32, 33, 
-                               34, 36, 37, 38, 40, 41, 43, 45, 46, 48, 50, 52, 54, 56, 58, 60, 62, 65, 67, 70, 72, 75, 78, 81, 84, 87, 90, 
-                               94, 97, 101, 105, 109, 113, 117, 122, 126, 131, 136, 141, 146, 152, 158, 164, 170, 176, 183, 190, 197, 205, 
-                               213, 221, 229, 238, 238, 240, 247, 247, 247, 240, 238, 238, 229, 221, 213, 205, 197, 190,183, 176, 170, 164, 158, 152, 146, 
-                               141, 136, 131, 126, 122, 117, 113, 109, 105, 101, 97, 94, 90, 87, 84, 81, 78, 75, 72, 70, 67, 65, 62, 60, 58, 
-                               56, 54, 52, 50, 48, 46, 45, 43, 41, 40, 38, 37, 36, 34, 33, 32, 31, 30, 28, 27, 26, 25, 25, 24, 23, 22, 21, 20, 
-                               20, 19, 18, 18, 17, 16, 16, 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10, 10, 9, 9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7};
-                               
-#else
-const uint16_t index_wave[] = {
-		1,  // 600 ms
-		2,  // 300 ms
-	  5,   // 100 ms
-	  8,  // 500 ms
-	  11,  // 200 ms
-    13,  // 400 ms
-    15,  // 700 ms
-    16, // 800 ms
-    16,
-    15,
-    13,
-    11,
-    8,
-    5,
-    2,
-    1,    // 1600 ms
-		0,    // 1600 ms
-    0,
-};
-#endif
+void Marquee_L2R(u32 rgb)
+{
+		int i = 1;
+    setAllColor_dma(ColorBuf[2], 0x000000);
+		for (i = 1; i < LED_NUM + 1; i++) {
+				setOneColor_dma(&ColorBuf[2][i], rgb);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
+				PLATFORM_DelayMS(80);
+				setOneColor_dma(&ColorBuf[2][i], 0x000000);
+		}
+}
+
+void Marquee_R2L(u32 rgb)
+{
+		int i = 1;
+    setAllColor_dma(ColorBuf[2], 0x000000);
+		for (i = LED_NUM + 1; i > 1; i--) {
+				setOneColor_dma(&ColorBuf[2][i], rgb);
+				TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
+				PLATFORM_DelayMS(80);
+				setOneColor_dma(&ColorBuf[2][i], 0x000000);
+		}
+}
+
 /* light 0-255 */
 void LED_LIGHT(u32 rgb, u8 light) {
     u32 rgbout;
@@ -225,14 +244,14 @@ void LED_LIGHT(u32 rgb, u8 light) {
     b = (uint8_t) rgb;
 
     rgb2hsv(r, g, b, &h, &s, &v);
-		printf("yz debug %s-%d h %f s %f v %f\n", __FUNCTION__, __LINE__, h,s,v);
+		// printf("yz debug %s-%d h %f s %f v %f\n", __FUNCTION__, __LINE__, h,s,v);
 		v = (float)light / 256;
     hsv2rgb(h ,s ,v, &r, &g, &b);
-		printf("yz debug %s-%d r %d g %d b %d v %f\n", __FUNCTION__, __LINE__, r,g,b,v);
+		// printf("yz debug %s-%d r %d g %d b %d v %f\n", __FUNCTION__, __LINE__, r,g,b,v);
 
     rgbout = r << 16 | g << 8 | g;
 
-		printf("yz debug %s-%d rgbout %d\n", __FUNCTION__, __LINE__, rgbout);
+		// printf("yz debug %s-%d rgbout %d\n", __FUNCTION__, __LINE__, rgbout);
 
     LED_CONFIG_ALL(rgbout);
 		PLATFORM_DelayMS(10);
@@ -241,15 +260,29 @@ void LED_LIGHT(u32 rgb, u8 light) {
 void Breath(u32 rgb)
 {
     int i;
-    printf("yz debug %s-%d sizeof(index_wave) / sizeof(uint16_t) %d\n", __FUNCTION__, __LINE__, sizeof(index_wave) / sizeof(uint16_t));
-    for (i = 0; i < sizeof(index_wave) / sizeof(uint16_t); i++)
+    for (i = 0; i < sizeof(index_heart) / sizeof(uint16_t); i++)
     {
-      #if 1
-        LED_LIGHT(rgb, index_wave[i]);
-      #else
-        LED_CONFIG_ALL(index_wave[i] << 16);
-		    PLATFORM_DelayMS(1900);
-      #endif
+        LED_LIGHT(rgb, index_heart[i]);
+    }
+}
+
+void Forward(u32 rgb)
+{
+    int i;
+    setAllColor_dma(ColorBuf[2], 0x000000);
+    for (i = 0; i < sizeof(index_forward) / sizeof(uint16_t); i++)
+    {
+        LED_LIGHT(rgb, index_forward[i]);
+    }
+}
+
+void Backward(u32 rgb)
+{
+    int i;
+    setAllColor_dma(ColorBuf[2], 0x000000);
+    for (i = 0; i < sizeof(index_backward) / sizeof(uint16_t); i++)
+    {
+        LED_LIGHT(rgb, index_backward[i]);
     }
 }
 

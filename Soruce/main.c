@@ -57,8 +57,23 @@
 
 /* Private functions **************************************************************************************************/
 
+enum {
+  MODE_IDLE = 0,
+  MODE_KEYUPDATE,
+  MODE_LEFT,
+  MODE_RIGHT,
+  MODE_FORWARD,
+  MODE_BACKWARD,
+  MODE_ON,
+  MODE_CLOSE,
+  MODE_BREATH,
+  MODE_Marquee,
+};
+KeyState_t KeyState;
 gesture_info_t gesture;
-
+u8 led_cur_on;
+u8 mode;
+extern u32 dma_idle;
 /***********************************************************************************************************************
   * @brief  This function is main entrance
   * @note   main
@@ -67,7 +82,6 @@ gesture_info_t gesture;
   *********************************************************************************************************************/
 int main(void)
 {
-    KeyState_t KeyState = {0, 0};
     uint8_t KeyCount = 0;
     u8 gsdate[2];
     PLATFORM_Init();
@@ -78,26 +92,19 @@ int main(void)
     paj7620u2_init();
 		paj7620u2_init_gesture();
     EXTI_Configure();
-
+    LED_CONFIG_ALL(0x000000);
+    led_cur_on = 0;
+    mode = MODE_IDLE;
 		// while (1) {
 		// 	Gesture_test();
 		// }
-		
     while (1)
     {
-        KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
-
+        // KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+        KeyState.intr = 1;
         if (KeyState.update) {
             KeyState.update = 0;
-            if (KeyState.status) {
-              printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
-              PLATFORM_LED_Enable(LED1, ENABLE);
-              LED_CONFIG_ALL(0x0f0000);
-            } else {
-              printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
-              PLATFORM_LED_Enable(LED1, DISABLE);
-              LED_CONFIG_ALL(0x000000);
-            }
+            mode = MODE_KEYUPDATE;
         }
         // gesture.data = GS_Read_Status();
         // if(!gesture.data) {
@@ -108,52 +115,91 @@ int main(void)
                 switch (gesture.data)
                 {
                   case PAJ_UP:	
-                    printf("Up\r\n");
+                    // printf("Up\r\n");
                     break;
                   case PAJ_DOWN:
-                    printf("Down\r\n");
+                    // printf("Down\r\n");
                     break;
                   case PAJ_LEFT:
+                    mode = MODE_LEFT;
                     printf("Left\r\n");
                   break;
                   case PAJ_RIGHT:
+                    mode = MODE_RIGHT;
                     printf("Right\r\n");
                   break;
                   case PAJ_FORWARD:
+                    mode = MODE_FORWARD;
                     printf("Forward\r\n");
                     break;
                   case PAJ_BACKWARD:
+                    mode = MODE_BACKWARD;
                     printf("Backward\r\n");
                     break;
                   case PAJ_CLOCKWISE:
-                    printf("Clockwise\r\n");
+                    // printf("Clockwise\r\n");
                     break;
                   case PAJ_COUNT_CLOCKWISE:
-                    printf("AntiClockwise\r\n");
+                    // printf("AntiClockwise\r\n");
                     break;
                   case PAJ_WAVE:
-                    printf("Wave\r\n");
+                    // printf("Wave\r\n");
                     break;
-                  default: break;
+                  default:
+                    break;
                 }
         }
+        if (dma_idle) {
+          switch (mode)
+          {
+              case MODE_KEYUPDATE:
+                  if (/*KeyState.status*/ !led_cur_on) {
+                    printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
+                    PLATFORM_LED_Enable(LED1, ENABLE);
+                    LED_CONFIG_ALL(0xf00000);
+                    led_cur_on = 1;
+                  } else {
+                    printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
+                    PLATFORM_LED_Enable(LED1, DISABLE);
+                    LED_CONFIG_ALL(0x000000);
+                    led_cur_on = 0;
+                  }
+                  mode = MODE_IDLE;
+                  break;
+              case MODE_LEFT:
+                Marquee_R2L(0xf00000);
+                break;
+              case MODE_RIGHT:
+                Marquee_L2R(0xf00000);
+                break;
+              case MODE_FORWARD:
+                Forward(0xf00000);
+                break;
+              case MODE_BACKWARD:
+                Backward(0xf00000);
+                break;
+              case MODE_ON:
+                LED_CONFIG_ALL(0xf00000);
+                led_cur_on = 1;
+                break;
+              case MODE_CLOSE:
+                LED_CONFIG_ALL(0x000000);
+                led_cur_on = 0;
+                break;
+              case MODE_BREATH:
+                Breath(0xf00000);
+                break;
+              case MODE_Marquee:
+                Marquee(0xf00000);
+                break;
+              default:
+                break;
+          }
+        }
+        mode = MODE_IDLE;
+        // PLATFORM_DelayMS(300);
+				// printf("1\r\n");
     }
-
-#if 0
-    //i2c2
-    GPIO_KEY_Input_Sample();
-    TIM1_8_PWM_Output_Sample();
-    TIM2_5_TimeBase_Sample();
-    EXTI_Interrupt_Sample();
-    I2C_Master_Polling_Sample();
-		//uart2
-    UART_Interrupt_Sample();
-		
-
-    while (1)
-    {
-    }
-    #endif
 }
 
 /**
