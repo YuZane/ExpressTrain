@@ -395,11 +395,6 @@
               <FilePath>..\mm32f5330_it.c</FilePath>
             </File>
             <File>
-              <FileName>i2c_master_interrupt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\i2c_master_interrupt.c</FilePath>
-            </File>
-            <File>
               <FileName>platform.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\platform.c</FilePath>

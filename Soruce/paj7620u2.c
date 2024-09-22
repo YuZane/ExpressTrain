@@ -82,24 +82,41 @@ u8 paj7620u2_init(void)
 	return 1;
 }
 
+void paj7620u2_init_gesture(void)
+{
+	int i;
+	paj7620u2_selectBank(BANK0);//进入BANK0寄存器区域
+	for(i=0;i<GESTURE_SIZE;i++)
+	{
+		GS_Write_Byte(gesture_arry[i][0],gesture_arry[i][1]);//手势识别模式初始化
+	}
+	paj7620u2_selectBank(BANK0);//切换回BANK0寄存器区域
+}
+
+
+u16 GS_Read_Status(void)
+{
+	int status;
+	u8 data[2]={0x00};
+	status = GS_Read_nByte(PAJ_GET_INT_FLAG1, 2, data);//读取手势状态
+	if(!status) {
+		return (u16)data[1]<<8 | data[0];
+	}
+	return 0;
+}
 //手势识别测试
-u8 Gesture_test(u8 *ges)
+u8 Gesture_test()
 {
 	u8 i;
 	u8 status;
 	u8 data[2]={0x00};
 	u16 gesture_data;
-	static u8 state = 0;
+	static u8 state = 1;
 	
 	if(state == 0)
 	{
 		paj7620u2_init();
-		paj7620u2_selectBank(BANK0);//进入BANK0寄存器区域
-		for(i=0;i<GESTURE_SIZE;i++)
-		{
-			GS_Write_Byte(gesture_arry[i][0],gesture_arry[i][1]);//手势识别模式初始化
-		}
-		paj7620u2_selectBank(BANK0);//切换回BANK0寄存器区域
+		paj7620u2_init_gesture();
 		state = 1;
 	}
 	else
@@ -108,7 +125,7 @@ u8 Gesture_test(u8 *ges)
 		if(!status) {
 			gesture_data =(u16)data[1]<<8 | data[0];
 			if(gesture_data) {
-				*ges = gesture_data;
+				// *ges = gesture_data;
 				switch (gesture_data)
 				{
 					case PAJ_UP:	printf("Up\r\n");				break;

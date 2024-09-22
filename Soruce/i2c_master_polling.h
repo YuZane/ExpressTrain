@@ -46,6 +46,7 @@ extern "C" {
 /* Exported variables *************************************************************************************************/
 
 /* Exported functions *************************************************************************************************/
+void I2C2_Configure(void);
 void I2C_Master_Polling_Sample(void);
 int I2C_Write(uint8_t Address, uint8_t *Buffer, uint8_t Length);
 int I2C_Read(uint8_t Address, uint8_t *Buffer, uint8_t Length);

@@ -39,6 +39,7 @@
 #include "exti_interrupt.h"
 #include "tim2_5_timebase.h"
 #include "tim1_8_pwm_output.h"
+#include "paj7620u2.h"
 #include "main.h"
 
 /**
@@ -56,6 +57,8 @@
 
 /* Private functions **************************************************************************************************/
 
+gesture_info_t gesture;
+
 /***********************************************************************************************************************
   * @brief  This function is main entrance
   * @note   main
@@ -66,27 +69,74 @@ int main(void)
 {
     KeyState_t KeyState = {0, 0};
     uint8_t KeyCount = 0;
-  
+    u8 gsdate[2];
     PLATFORM_Init();
 		GPIO_Configure();
     TIM1_8_Configure();
+    I2C2_Configure();
 
+    paj7620u2_init();
+		paj7620u2_init_gesture();
+    EXTI_Configure();
+
+		// while (1) {
+		// 	Gesture_test();
+		// }
+		
     while (1)
     {
-      KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+        KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
 
-      if (KeyState.update) {
-        KeyState.update = 0;
-        if (KeyState.status) {
-          printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
-          PLATFORM_LED_Enable(LED1, ENABLE);
-          LED_CONFIG_ALL(0x0f0000);
-        } else {
-          printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
-          PLATFORM_LED_Enable(LED1, DISABLE);
-          LED_CONFIG_ALL(0x000000);
+        if (KeyState.update) {
+            KeyState.update = 0;
+            if (KeyState.status) {
+              printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
+              PLATFORM_LED_Enable(LED1, ENABLE);
+              LED_CONFIG_ALL(0x0f0000);
+            } else {
+              printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
+              PLATFORM_LED_Enable(LED1, DISABLE);
+              LED_CONFIG_ALL(0x000000);
+            }
         }
-      }
+        // gesture.data = GS_Read_Status();
+        // if(!gesture.data) {
+        //     gesture.update = 1;
+        // }
+        if (gesture.update) {
+                gesture.update = 0;
+                switch (gesture.data)
+                {
+                  case PAJ_UP:	
+                    printf("Up\r\n");
+                    break;
+                  case PAJ_DOWN:
+                    printf("Down\r\n");
+                    break;
+                  case PAJ_LEFT:
+                    printf("Left\r\n");
+                  break;
+                  case PAJ_RIGHT:
+                    printf("Right\r\n");
+                  break;
+                  case PAJ_FORWARD:
+                    printf("Forward\r\n");
+                    break;
+                  case PAJ_BACKWARD:
+                    printf("Backward\r\n");
+                    break;
+                  case PAJ_CLOCKWISE:
+                    printf("Clockwise\r\n");
+                    break;
+                  case PAJ_COUNT_CLOCKWISE:
+                    printf("AntiClockwise\r\n");
+                    break;
+                  case PAJ_WAVE:
+                    printf("Wave\r\n");
+                    break;
+                  default: break;
+                }
+        }
     }
 
 #if 0

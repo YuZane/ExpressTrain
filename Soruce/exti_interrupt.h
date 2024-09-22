@@ -46,6 +46,7 @@ extern "C" {
 /* Exported variables *************************************************************************************************/
 
 /* Exported functions *************************************************************************************************/
+void EXTI_Configure(void);
 void EXTI_Interrupt_Sample(void);
 
 #ifdef __cplusplus

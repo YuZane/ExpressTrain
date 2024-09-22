@@ -1,0 +1,9 @@
+{
+	"files.associations": {
+		"*.dynamic": "makefile",
+		"*.static": "makefile",
+		"*.bin": "code-text-binary",
+		"i2c_master_interrupt.h": "c",
+		"i2c_master_polling.h": "c"
+	}
+}

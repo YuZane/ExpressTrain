@@ -32,8 +32,9 @@
 /* Files include */
 #include <stdio.h>
 #include "platform.h"
-#include "i2c_master_interrupt.h"
+#include "i2c_master_polling.h"
 #include "uart_interrupt.h"
+#include "paj7620u2.h"
 #include "mm32f5330_it.h"
 
 /**
@@ -159,7 +160,7 @@ void SysTick_Handler(void)
         PLATFORM_DelayTick--;
     }
 }
-
+#if 0
 /***********************************************************************************************************************
   * @brief  This function handles I2C2 Handler
   * @note   none
@@ -210,7 +211,7 @@ void I2C2_IRQHandler(void)
         }
     }
 }
-
+#endif
 
 /***********************************************************************************************************************
   * @brief  This function handles UART2 Handler
@@ -335,22 +336,18 @@ void EXTI9_5_IRQHandler(void)
         udelay();
     }
 }
-
-extern int I2C_Read(uint8_t Address, uint8_t *Buffer, uint8_t Length);
+extern gesture_info_t gesture;
 void EXTI0_IRQHandler(void)
 {
-    u16 gesture_data = 0;
     uint8_t ges[2] = {0};
     /* K3 */
     if (SET == EXTI_GetITStatus(EXTI_Line0))
     {
         PLATFORM_LED_Toggle(LED4);
-        udelay();
         EXTI_ClearITPendingBit(EXTI_Line0);
-        udelay();
         I2C_Read(0x43, ges, 2);
-        gesture_data =(u16)ges[1] << 8 | ges[0];
-        udelay();
+        gesture.data =(u16)ges[1] << 8 | ges[0];
+        gesture.update = 1;
     }
 }
 

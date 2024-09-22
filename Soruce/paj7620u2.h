@@ -67,9 +67,15 @@ typedef enum{
 #define PAJ_WAVE			0x100
 
 u8 paj7620u2_init(void);
-u8 Gesture_test(u8 *ges);
+u8 Gesture_test();
 u8 Ps_test(u8 *brightness, u16 *size);
-
+u8 GS_Read_nByte(u8 REG_Address,u16 len,u8 *buf);
+u16 GS_Read_Status(void);
+void paj7620u2_init_gesture(void);
+typedef struct {
+	u32 data;
+	u32 update;
+} gesture_info_t;
 #endif
 
 
