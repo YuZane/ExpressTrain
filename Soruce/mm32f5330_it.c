@@ -322,7 +322,7 @@ void EXTI4_IRQHandler(void)
           KeyState.intr = 0;
           // KeyState.update = 1;
           printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
-        // }
+        // } 
         #else
         printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
         #endif
