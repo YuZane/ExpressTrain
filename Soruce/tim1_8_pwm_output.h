@@ -46,7 +46,10 @@ extern "C" {
 /* Exported variables *************************************************************************************************/
 
 /* Exported functions *************************************************************************************************/
+void TIM1_8_Configure(void);
 void TIM1_8_PWM_Output_Sample(void);
+void LED_CONFIG_ALL(u32 rgb);
+void Marquee(u32 rgb);
 
 #ifdef __cplusplus
 }

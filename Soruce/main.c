@@ -30,6 +30,7 @@
 #define _MAIN_C_
 
 /* Files include */
+#include <stdio.h>
 #include "platform.h"
 #include "i2c_master_interrupt.h"
 #include "i2c_master_polling.h"
@@ -63,8 +64,32 @@
   *********************************************************************************************************************/
 int main(void)
 {
+    KeyState_t KeyState = {0, 0};
+    uint8_t KeyCount = 0;
+  
     PLATFORM_Init();
+		GPIO_Configure();
+    TIM1_8_Configure();
 
+    while (1)
+    {
+      KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+
+      if (KeyState.update) {
+        KeyState.update = 0;
+        if (KeyState.status) {
+          printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
+          PLATFORM_LED_Enable(LED1, ENABLE);
+          LED_CONFIG_ALL(0x0f0000);
+        } else {
+          printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
+          PLATFORM_LED_Enable(LED1, DISABLE);
+          LED_CONFIG_ALL(0x000000);
+        }
+      }
+    }
+
+#if 0
     //i2c2
     GPIO_KEY_Input_Sample();
     TIM1_8_PWM_Output_Sample();
@@ -78,6 +103,7 @@ int main(void)
     while (1)
     {
     }
+    #endif
 }
 
 /**

@@ -46,6 +46,14 @@ extern "C" {
 /* Exported variables *************************************************************************************************/
 
 /* Exported functions *************************************************************************************************/
+typedef struct {
+	u8 press;
+	u8 update;
+	u8 status;
+} KeyState_t;
+
+void GPIO_Configure(void);
+void KEY_FSM_Handler(KeyState_t *State, uint8_t *Count, uint8_t InputLevel, uint8_t ActiveLevel, char *Name);
 void GPIO_KEY_Input_Sample(void);
 
 #ifdef __cplusplus

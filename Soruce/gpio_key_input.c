@@ -103,9 +103,10 @@ void GPIO_Configure(void)
 	* @param	none
 	* @retval none
 	*********************************************************************************************************************/
-void KEY_FSM_Handler(uint8_t *State, uint8_t *Count, uint8_t InputLevel, uint8_t ActiveLevel, char *Name)
+void KEY_FSM_Handler(KeyState_t *State, uint8_t *Count, uint8_t InputLevel, uint8_t ActiveLevel, char *Name)
 {
-	if (0 == *State)
+	// static int status = 0;
+	if (0 == State->press)
 	{
 		if (InputLevel == ActiveLevel)
 		{
@@ -113,7 +114,11 @@ void KEY_FSM_Handler(uint8_t *State, uint8_t *Count, uint8_t InputLevel, uint8_t
 
 			if (*Count >= 5)
 			{
-				*State = 1;
+				// status = !status;
+				State->status = !State->status;
+				State->press = 1;
+				State->update = 1;
+				//State->status = status;
 				*Count = 0;
 				printf("\r\n%s Pressed", Name);
 			}
@@ -131,7 +136,7 @@ void KEY_FSM_Handler(uint8_t *State, uint8_t *Count, uint8_t InputLevel, uint8_t
 
 			if (*Count >= 5)
 			{
-				*State = 0;
+				State->press = 0;
 				*Count = 0;
 				printf("\r\n%s Release", Name);
 			}
@@ -151,12 +156,14 @@ extern void WS2812B_Test(void);
 * @param	none
 * @retval none
 *********************************************************************************************************************/
+
 void GPIO_KEY_Input_Sample(void)
 {
-	static uint8_t KeyState[4] =
-	{
-		0, 0, 0, 0
-	};
+	KeyState_t KeyState = {0, 0};
+	// static uint8_t KeyState[4] =
+	// {
+	// 	0, 0, 0, 0
+	// };
 	static uint8_t KeyCount[4] =
 	{
 		0, 0, 0, 0
@@ -167,24 +174,28 @@ void GPIO_KEY_Input_Sample(void)
 	GPIO_Configure();
 
 	printf("\r\nPress K1-K4...");
-	WS2812B_Init();
-	// while (1) {
-	// 	WS2812B_Test();
-	// }
-	// while (1)
-	// {
-	// KEY_FSM_Handler(&KeyState[0], &KeyCount[0], GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET,	 "K1");
-	// KEY_FSM_Handler(&KeyState[1], &KeyCount[1], GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5), Bit_RESET, "K2");
-	// KEY_FSM_Handler(&KeyState[2], &KeyCount[2], GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1), Bit_RESET, "K3");
-	// KEY_FSM_Handler(&KeyState[3], &KeyCount[3], GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2), Bit_RESET, "K4");
 
-	// PLATFORM_LED_Enable(LED1, (FunctionalState)GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4));
-	// PLATFORM_LED_Enable(LED2, (FunctionalState)GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5));
-	// PLATFORM_LED_Enable(LED3, (FunctionalState)GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1));
-	// PLATFORM_LED_Enable(LED4, (FunctionalState)GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2));
+	while (1)
+	{
+		KEY_FSM_Handler(&KeyState, &KeyCount[0], GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+		// KEY_FSM_Handler(&KeyState[1], &KeyCount[1], GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5), Bit_RESET, "K2");
+		// KEY_FSM_Handler(&KeyState[2], &KeyCount[2], GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1), Bit_RESET, "K3");
+		// KEY_FSM_Handler(&KeyState[3], &KeyCount[3], GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2), Bit_RESET, "K4");
 
-	// PLATFORM_DelayMS(10);
-	// }
+		if (KeyState.update) {
+			KeyState.update = 0;
+			if (KeyState.status)
+				PLATFORM_LED_Enable(LED1, ENABLE);
+			else
+				PLATFORM_LED_Enable(LED1, DISABLE);
+		}
+		// PLATFORM_LED_Enable(LED1, (FunctionalState)GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4));
+		// PLATFORM_LED_Enable(LED2, (FunctionalState)GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5));
+		// PLATFORM_LED_Enable(LED3, (FunctionalState)GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1));
+		// PLATFORM_LED_Enable(LED4, (FunctionalState)GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2));
+
+		// PLATFORM_DelayMS(10);
+	}
 }
 
 /**
