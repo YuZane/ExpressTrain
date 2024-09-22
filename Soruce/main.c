@@ -100,14 +100,6 @@ int main(void)
 		// }
     while (1)
     {
-        #if 1
-        KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
-        #endif
-        KeyState.intr = 1;
-        if (KeyState.update) {
-            KeyState.update = 0;
-            mode = MODE_KEYUPDATE;
-        }
         // gesture.data = GS_Read_Status();
         // if(!gesture.data) {
         //     gesture.update = 1;
@@ -150,6 +142,15 @@ int main(void)
                   default:
                     break;
                 }
+        }
+
+        #if 0
+        KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+        #endif
+        KeyState.intr = 1;
+        if (KeyState.update) {
+            KeyState.update = 0;
+            mode = MODE_KEYUPDATE;
         }
         if (dma_idle) {
           switch (mode)

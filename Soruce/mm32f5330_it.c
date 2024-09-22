@@ -313,18 +313,31 @@ void EXTI2_IRQHandler(void)
 extern KeyState_t KeyState;
 void EXTI4_IRQHandler(void)
 {
+    int i, count = 0;
     /* K1 */
     if (SET == EXTI_GetITStatus(EXTI_Line4))
     {
         PLATFORM_LED_Toggle(LED1);
-        #if 0
-        // if (KeyState.intr) {
-          KeyState.intr = 0;
-          // KeyState.update = 1;
-          printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
-        // } 
+        #if 1
+          for ( i = 0; i < 10000; i++) {
+            if (GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4) == Bit_SET)
+              count++;
+          }
+          if (count > 9000) {
+            KeyState.update = 1;
+            printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
+          }
+          printf("yz debug %s-%d key count %d\n", __FUNCTION__, __LINE__, count);
         #else
-        printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
+          #if 0
+          // if (KeyState.intr) {
+            KeyState.intr = 0;
+            // KeyState.update = 1;
+            printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
+          // }
+          #else
+          printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
+          #endif
         #endif
         EXTI_ClearITPendingBit(EXTI_Line4);
     }
