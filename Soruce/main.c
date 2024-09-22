@@ -100,7 +100,9 @@ int main(void)
 		// }
     while (1)
     {
-        // KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+        #if 1
+        KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
+        #endif
         KeyState.intr = 1;
         if (KeyState.update) {
             KeyState.update = 0;

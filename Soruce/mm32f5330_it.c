@@ -317,11 +317,15 @@ void EXTI4_IRQHandler(void)
     if (SET == EXTI_GetITStatus(EXTI_Line4))
     {
         PLATFORM_LED_Toggle(LED1);
-        if (KeyState.intr) {
+        #if 0
+        // if (KeyState.intr) {
           KeyState.intr = 0;
-          KeyState.update = 1;
+          // KeyState.update = 1;
           printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
-        }
+        // }
+        #else
+        printf("yz debug %s-%d key update\n", __FUNCTION__, __LINE__);
+        #endif
         EXTI_ClearITPendingBit(EXTI_Line4);
     }
 }
