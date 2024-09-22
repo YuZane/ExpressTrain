@@ -100,6 +100,7 @@ int main(void)
 		// }
     while (1)
     {
+        //gesture
         // gesture.data = GS_Read_Status();
         // if(!gesture.data) {
         //     gesture.update = 1;
@@ -144,6 +145,9 @@ int main(void)
                 }
         }
 
+        //voice
+
+        //key
         #if 0
         KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
         #endif
