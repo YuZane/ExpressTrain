@@ -64,7 +64,7 @@ EXTERN volatile UART_RxTx_TypeDef UART_TxStruct;
 
 /* Exported functions *************************************************************************************************/
 void UART_Interrupt_Sample(void);
-
+void UART_RxData_Interrupt(uint8_t Length);
 #ifdef __cplusplus
 }
 #endif

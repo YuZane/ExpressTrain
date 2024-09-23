@@ -5,6 +5,8 @@
 #include "platform.h"
 #include "rgbandhsv.h"
 #include "tim1_8_pwm_output.h"
+#include <stdlib.h>
+#include <time.h>
 
 
 #define LED_NUM 60
@@ -213,11 +215,17 @@ void Marquee(u32 rgb)
 void Marquee_L2R(u32 rgb)
 {
 		int i = 1;
+    static u8 r;
+
+    r+=10;
+    srand(r);
+
     setAllColor_dma(ColorBuf[2], 0x000000);
 		for (i = 1; i < LED_NUM + 1; i++) {
+        rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
 				setOneColor_dma(&ColorBuf[2][i], rgb);
 				TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
-				PLATFORM_DelayMS(80);
+				PLATFORM_DelayMS(10);
 				setOneColor_dma(&ColorBuf[2][i], 0x000000);
 		}
 }
@@ -225,11 +233,15 @@ void Marquee_L2R(u32 rgb)
 void Marquee_R2L(u32 rgb)
 {
 		int i = 1;
+    static u8 r;
+    r+=10;
+    srand(r);
     setAllColor_dma(ColorBuf[2], 0x000000);
-		for (i = LED_NUM + 1; i > 1; i--) {
+		for (i = LED_NUM + 1; i > 0; i--) {
+         rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
 				setOneColor_dma(&ColorBuf[2][i], rgb);
 				TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
-				PLATFORM_DelayMS(80);
+				PLATFORM_DelayMS(10);
 				setOneColor_dma(&ColorBuf[2][i], 0x000000);
 		}
 }

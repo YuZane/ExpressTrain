@@ -74,6 +74,8 @@ gesture_info_t gesture;
 u8 led_cur_on;
 u8 mode;
 extern u32 dma_idle;
+EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
+
 /***********************************************************************************************************************
   * @brief  This function is main entrance
   * @note   main
@@ -88,6 +90,7 @@ int main(void)
 		GPIO_Configure();
     TIM1_8_Configure();
     I2C2_Configure();
+    UART_Configure(921600);
 
     paj7620u2_init();
 		paj7620u2_init_gesture();
@@ -98,6 +101,14 @@ int main(void)
 		// while (1) {
 		// 	Gesture_test();
 		// }
+    while (1)
+    {
+      UART_RxData_Interrupt(130);
+      while (UART_RxStruct.CompleteFlag != 1);
+      UART_RxStruct.Buffer[131] = '\0';
+      printf("%s\n", UART_RxStruct.Buffer);
+    }
+    
     while (1)
     {
         //gesture
