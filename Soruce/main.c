@@ -208,15 +208,17 @@ int main(void)
                   if (/*KeyState.status*/ !led_cur_on) {
                     printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
                     PLATFORM_LED_Enable(LED1, ENABLE);
-                    LED_CONFIG_ALL(0xf00000);
+                    mode = MODE_BREATH;
+                    // LED_CONFIG_ALL(0xf00000);
                     led_cur_on = 1;
                   } else {
                     printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
                     PLATFORM_LED_Enable(LED1, DISABLE);
-                    LED_CONFIG_ALL(0x000000);
+                    mode = MODE_MARQUEE;
+                    // LED_CONFIG_ALL(0x000000);
                     led_cur_on = 0;
                   }
-                  mode = MODE_IDLE;
+                  //mode = MODE_IDLE;
                   break;
               case MODE_LEFT:
                 // Marquee_R2L(0xf00000);
@@ -229,12 +231,12 @@ int main(void)
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
                 printf("MODE_LEFT led_index %d \r\n", led_index);
-                rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
-                setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], rgb);
+                setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], 0x00f000);
                 TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                PLATFORM_DelayMS(10);
+                PLATFORM_DelayMS(30);
                 setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], 0x000000);
                 led_index++;
+                led_cur_on = 1;
                 break;
               case MODE_RIGHT:
                 // Marquee_L2R(0xf00000);
@@ -246,13 +248,13 @@ int main(void)
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
-                rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
                 printf("MODE_RIGHT led_index %d \r\n", led_index);
-                setOneColor_dma(&ColorBuf[led_index], rgb);
+                setOneColor_dma(&ColorBuf[led_index], 0x0000f0);
                 TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                PLATFORM_DelayMS(10);
+                PLATFORM_DelayMS(30);
                 setOneColor_dma(&ColorBuf[led_index], 0x000000);
                 led_index++;
+                led_cur_on = 1;
                 break;
               case MODE_FORWARD:
                 // Forward(0xf00000);
@@ -265,15 +267,17 @@ int main(void)
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
                 LED_LIGHT(0xf00000, index_forward[led_index++]);
+                led_cur_on = 1;
                 break;
               case MODE_BACKWARD:
                 // Backward(0xf00000);
                 if (led_index >= sizeof(index_backward) / sizeof(uint16_t)) {
                   led_index = 0;
                   mode = MODE_IDLE;
-									break;
+                  break;
                 }
                 LED_LIGHT(0xf00000, index_backward[led_index++]);
+                led_cur_on = 0;
                 break;
               case MODE_ON:
                 LED_CONFIG_ALL(0xf00000);
@@ -289,7 +293,9 @@ int main(void)
                 if (led_index >= sizeof(index_heart) / sizeof(uint16_t)) {
                   led_index = 0;
                 }
-                LED_LIGHT(0xf00000, index_heart[led_index]);
+                LED_LIGHT(0xf00000, index_heart[led_index++]);
+                led_cur_on = 1;
+                printf("MODE_BREATH\r\n");
                 break;
               case MODE_MARQUEE:
                 // Marquee(0xf00000);
@@ -299,10 +305,14 @@ int main(void)
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
-                setOneColor_dma(&ColorBuf[led_index], 0xf00000);
+                rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
+                setOneColor_dma(&ColorBuf[led_index], rgb);
                 TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                PLATFORM_DelayMS(40);
+                PLATFORM_DelayMS(5);
                 setOneColor_dma(&ColorBuf[led_index], 0x000000);
+                led_index++;
+                led_cur_on = 1;
+                printf("MODE_MARQUEE\r\n");
                 break;
               default:
                 break;
