@@ -100,7 +100,7 @@ void UART_Configure(uint32_t Baudrate)
     GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     NVIC_InitStruct.NVIC_IRQChannel = UART2_IRQn;
-    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStruct.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStruct);

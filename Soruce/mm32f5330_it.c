@@ -244,7 +244,7 @@ void UART2_IRQHandler(void)
         } else {
             index++;
         }
-        UART_ClearITPendingBit(UART2, UART_IT_RX);
+        UART_ClearITPendingBit(UART2, 0xff);
     }
 }
 #else
