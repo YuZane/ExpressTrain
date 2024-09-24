@@ -222,6 +222,31 @@ void I2C2_IRQHandler(void)
   * @param  none
   * @retval none
   *********************************************************************************************************************/
+#if 1
+char voice_cmdstr[] = "cmd_id:2";
+char voice_cmd;
+
+void UART2_IRQHandler(void)
+{
+    uint8_t RxData = 0;
+    static int index = 0;
+    if (SET == UART_GetITStatus(UART2, UART_IT_RX))
+    {
+        RxData = UART_ReceiveData(UART2);
+        // cmd_id:2
+        if (index >= 7) {
+            voice_cmd = RxData;
+            index = 0;
+        }
+        if (RxData != voice_cmdstr[index]) {
+            index = 0;
+        } else {
+            index++;
+        }
+        UART_ClearITPendingBit(UART2, UART_IT_RX);
+    }
+}
+#else
 void UART2_IRQHandler(void)
 {
     uint8_t RxData = 0;
@@ -262,12 +287,8 @@ void UART2_IRQHandler(void)
         }
     }
 }
-void udelay()
-{
-    int i = 1000000;
-    for (; i < 0 ; i--)
-      __NOP();
-}
+#endif
+
 /***********************************************************************************************************************
   * @brief  This function handles EXTI1 Handler
   * @note   none
@@ -280,9 +301,7 @@ void EXTI1_IRQHandler(void)
     if (SET == EXTI_GetITStatus(EXTI_Line1))
     {
         PLATFORM_LED_Toggle(LED3);
-        udelay();
         EXTI_ClearITPendingBit(EXTI_Line1);
-        udelay();
     }
 }
 
@@ -298,9 +317,7 @@ void EXTI2_IRQHandler(void)
     if (SET == EXTI_GetITStatus(EXTI_Line2))
     {
         PLATFORM_LED_Toggle(LED4);
-        udelay();
         EXTI_ClearITPendingBit(EXTI_Line2);
-        udelay();
     }
 }
 
@@ -355,9 +372,7 @@ void EXTI9_5_IRQHandler(void)
     if (SET == EXTI_GetITStatus(EXTI_Line5))
     {
         PLATFORM_LED_Toggle(LED2);
-        udelay();
         EXTI_ClearITPendingBit(EXTI_Line5);
-        udelay();
     }
 }
 extern gesture_info_t gesture;

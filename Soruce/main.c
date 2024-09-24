@@ -67,14 +67,20 @@ enum {
   MODE_ON,
   MODE_CLOSE,
   MODE_BREATH,
-  MODE_Marquee,
+  MODE_MARQUEE,
 };
 KeyState_t KeyState;
 gesture_info_t gesture;
 u8 led_cur_on;
 u8 mode;
 extern u32 dma_idle;
+extern char voice_cmd;
 EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
+
+#define VOICE_OPEN_LED 0x32
+#define VOICE_CLOSE_LED 0x33
+#define VOICE_MARQUEE 0x34
+#define VOICE_BREATH 0x35
 
 /***********************************************************************************************************************
   * @brief  This function is main entrance
@@ -84,6 +90,7 @@ EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
   *********************************************************************************************************************/
 int main(void)
 {
+    static uint8_t led_index = 0;
     uint8_t KeyCount = 0;
     u8 gsdate[2];
     PLATFORM_Init();
@@ -98,9 +105,7 @@ int main(void)
     LED_CONFIG_ALL(0x000000);
     led_cur_on = 0;
     mode = MODE_IDLE;
-		// while (1) {
-		// 	Gesture_test();
-		// }
+
     while (1)
     {
       UART_RxData_Interrupt(130);
@@ -157,15 +162,34 @@ int main(void)
         }
 
         //voice
+        switch (voice_cmd)
+        {
+          case VOICE_OPEN_LED:
+            mode = MODE_ON;
+            break;
+          case VOICE_CLOSE_LED:
+            mode = MODE_CLOSE;
+            break;
+          case VOICE_MARQUEE:
+            mode = MODE_MARQUEE;
+            break;
+          case VOICE_BREATH:
+            mode = MODE_BREATH;
+            break;
+          
+          default:
+            break;
+        }
 
         //key
-        #if 0
-        KEY_FSM_Handler(&KeyState, &KeyCount, GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4), Bit_SET, "K1");
-        #endif
         KeyState.intr = 1;
         if (KeyState.update) {
             KeyState.update = 0;
             mode = MODE_KEYUPDATE;
+        }
+
+        if (LastMode != mode) {
+          led_index = 0;
         }
         if (dma_idle) {
           switch (mode)
@@ -207,7 +231,7 @@ int main(void)
               case MODE_BREATH:
                 Breath(0xf00000);
                 break;
-              case MODE_Marquee:
+              case MODE_MARQUEE:
                 Marquee(0xf00000);
                 break;
               default:
@@ -215,22 +239,7 @@ int main(void)
           }
         }
         mode = MODE_IDLE;
-        // PLATFORM_DelayMS(300);
-				// printf("1\r\n");
+        LastMode = mode;
     }
 }
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/********************************************** (C) Copyright MindMotion **********************************************/
 
