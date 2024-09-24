@@ -80,7 +80,7 @@ extern char voice_cmd;
 EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
 static dma_color_t ColorBuf[LED_NUM + 4];
 extern uint16_t index_heart[215];
-extern uint16_t index_forward[116];
+extern uint16_t index_forward[113];
 extern uint16_t index_backward[116];
 
 #define VOICE_OPEN_LED 0x32
@@ -259,7 +259,7 @@ int main(void)
                 if (led_index >= sizeof(index_forward) / sizeof(uint16_t)) {
                   led_index = 0;
                   mode = MODE_IDLE;
-									break;
+                  break;
                 }
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
@@ -273,7 +273,7 @@ int main(void)
                   mode = MODE_IDLE;
 									break;
                 }
-                LED_LIGHT(rgb, index_backward[led_index++]);
+                LED_LIGHT(0xf00000, index_backward[led_index++]);
                 break;
               case MODE_ON:
                 LED_CONFIG_ALL(0xf00000);
@@ -289,17 +289,17 @@ int main(void)
                 if (led_index >= sizeof(index_heart) / sizeof(uint16_t)) {
                   led_index = 0;
                 }
-                LED_LIGHT(rgb, index_heart[led_index]);
+                LED_LIGHT(0xf00000, index_heart[led_index]);
                 break;
               case MODE_MARQUEE:
                 // Marquee(0xf00000);
-                if (led_index >= LED_NUM + 1) {
+                if (led_index >= LED_NUM) {
                   led_index = 0;
                 }
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
-                setOneColor_dma(&ColorBuf[led_index], rgb);
+                setOneColor_dma(&ColorBuf[led_index], 0xf00000);
                 TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
                 PLATFORM_DelayMS(40);
                 setOneColor_dma(&ColorBuf[led_index], 0x000000);
