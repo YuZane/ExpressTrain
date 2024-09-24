@@ -31,6 +31,7 @@
 
 /* Files include */
 #include <stdio.h>
+#include <stdlib.h>
 #include "platform.h"
 #include "i2c_master_interrupt.h"
 #include "i2c_master_polling.h"
@@ -78,9 +79,9 @@ extern u32 dma_idle;
 extern char voice_cmd;
 EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
 static dma_color_t ColorBuf[LED_NUM + 4];
-extern uint16_t index_heart[];
-extern uint16_t index_forward[];
-extern uint16_t index_backward[];
+extern uint16_t index_heart[215];
+extern uint16_t index_forward[116];
+extern uint16_t index_backward[116];
 
 #define VOICE_OPEN_LED 0x32
 #define VOICE_CLOSE_LED 0x33
@@ -290,10 +291,10 @@ int main(void)
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
-                setOneColor_dma(&ColorBuf[2][i], rgb);
-                TIM1_DMA_Interrupt((u32 *)ColorBuf[2], (LED_NUM + 2) * 24);
+                setOneColor_dma(&ColorBuf[led_index], rgb);
+                TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
                 PLATFORM_DelayMS(40);
-                setOneColor_dma(&ColorBuf[2][i], 0x000000);
+                setOneColor_dma(&ColorBuf[led_index], 0x000000);
                 break;
               default:
                 break;
