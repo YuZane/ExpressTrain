@@ -106,6 +106,7 @@ void UART_Configure(uint32_t Baudrate)
     NVIC_Init(&NVIC_InitStruct);
 
     UART_Cmd(UART2, ENABLE);
+    UART_ITConfig(UART2, UART_IT_RX, ENABLE);
 }
 
 /***********************************************************************************************************************

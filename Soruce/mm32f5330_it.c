@@ -234,6 +234,7 @@ void UART2_IRQHandler(void)
     {
         RxData = UART_ReceiveData(UART2);
         // cmd_id:2
+        // printf("%c", RxData);
         if (index >= 7) {
             voice_cmd = RxData;
             index = 0;
