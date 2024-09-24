@@ -85,8 +85,8 @@ extern uint16_t index_backward[116];
 
 #define VOICE_OPEN_LED 0x32
 #define VOICE_CLOSE_LED 0x33
-#define VOICE_MARQUEE 0x34
-#define VOICE_BREATH 0x35
+#define VOICE_BREATH 0x34
+#define VOICE_MARQUEE 0x35
 
 /***********************************************************************************************************************
   * @brief  This function is main entrance
