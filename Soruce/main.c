@@ -220,28 +220,34 @@ int main(void)
                   break;
               case MODE_LEFT:
                 // Marquee_R2L(0xf00000);
-                if (led_index >= LED_NUM + 1) {
+                if (led_index >= LED_NUM) {
                   led_index = 0;
+                  mode = MODE_IDLE;
+                  break;
                 }
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
+                printf("MODE_LEFT led_index %d \r\n", led_index);
                 rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
-                setOneColor_dma(&ColorBuf[LED_NUM + 1 - led_index], rgb);
+                setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], rgb);
                 TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
                 PLATFORM_DelayMS(10);
-                setOneColor_dma(&ColorBuf[LED_NUM + 1 - led_index], 0x000000);
+                setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], 0x000000);
                 led_index++;
                 break;
               case MODE_RIGHT:
                 // Marquee_L2R(0xf00000);
-                if (led_index >= LED_NUM + 1) {
+                if (led_index >= LED_NUM) {
                   led_index = 0;
+                  mode = MODE_IDLE;
+                  break;
                 }
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
                 }
                 rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
+                printf("MODE_RIGHT led_index %d \r\n", led_index);
                 setOneColor_dma(&ColorBuf[led_index], rgb);
                 TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
                 PLATFORM_DelayMS(10);
