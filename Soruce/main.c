@@ -83,6 +83,7 @@ extern uint16_t index_heart[215];
 extern uint16_t index_forward[113];
 extern uint16_t index_backward[116];
 
+#define VOICE_IDLE 0x0
 #define VOICE_OPEN_LED 0x32
 #define VOICE_CLOSE_LED 0x33
 #define VOICE_BREATH 0x34
@@ -189,6 +190,7 @@ int main(void)
           default:
             break;
         }
+        voice_cmd = VOICE_IDLE;
 
         //key
         KeyState.intr = 1;
