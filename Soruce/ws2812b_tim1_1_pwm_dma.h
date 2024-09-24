@@ -1,5 +1,5 @@
 /***********************************************************************************************************************
-    @file    i2c_master_eeprom_interrupt.h
+    @file    ws2812b_tim1_1_pwm_dma.h
     @author  FAE Team
     @date    08-May-2023
     @brief   THIS FILE PROVIDES ALL THE SYSTEM FUNCTIONS.
@@ -27,8 +27,8 @@
   *********************************************************************************************************************/
 
 /* Define to prevent recursive inclusion */
-#ifndef _I2C_MASTER_EEPROM_INTERRUPT_H_
-#define _I2C_MASTER_EEPROM_INTERRUPT_H_
+#ifndef _TIM1_8_PWM_OUTPUT_H_
+#define _TIM1_8_PWM_OUTPUT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,39 +37,47 @@ extern "C" {
 /* Files include */
 #include "hal_conf.h"
 
+#define LED_NUM 60
+#define LED_HIGH (140)
+#define LED_LOW (60)
+typedef struct {
+    u32 G[8];
+    u32 R[8];
+    u32 B[8];
+}dma_color_t;
+
+typedef struct {
+	u8 R;
+	u8 G;
+	u8 B;
+}color_rgb_t;
+
 /* Exported types *****************************************************************************************************/
-typedef struct
-{
-    uint8_t Buffer[255];
-    uint8_t Length;
-    uint8_t CurrentCount;
-    uint8_t CompleteFlag;
-} I2C_RxTx_TypeDef;
 
 /* Exported constants *************************************************************************************************/
 
 /* Exported macro *****************************************************************************************************/
 
 /* Exported variables *************************************************************************************************/
-#undef EXTERN
-
-#ifdef _I2C_MASTER_EEPROM_INTERRUPT_C_
-#define EXTERN
-#else
-#define EXTERN extern
-#endif
-
-EXTERN volatile I2C_RxTx_TypeDef I2C_RxStruct;
-EXTERN volatile I2C_RxTx_TypeDef I2C_TxStruct;
 
 /* Exported functions *************************************************************************************************/
-void I2C_Master_EEPROM_Interrupt_Sample(void);
-
+void TIM1_8_Configure(void);
+void TIM1_8_PWM_Output_Sample(void);
+void LED_CONFIG_ALL(u32 rgb);
+void Marquee(u32 rgb);
+void Marquee_L2R(u32 rgb);
+void Marquee_R2L(u32 rgb);
+void Breath(u32 rgb);
+void Forward(u32 rgb);
+void Backward(u32 rgb);
+void setOneColor_dma(dma_color_t *color, uint32_t rgb);
+void setAllColor_dma(dma_color_t *color, uint32_t rgb);
+void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length);
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _I2C_MASTER_EEPROM_INTERRUPT_H_ */
+#endif /* _TIM1_8_PWM_OUTPUT_H_ */
 
 /********************************************** (C) Copyright MindMotion **********************************************/
 

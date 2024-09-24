@@ -39,7 +39,7 @@
 #include "gpio_key_input.h"
 #include "exti_interrupt.h"
 #include "tim2_5_timebase.h"
-#include "tim1_8_pwm_output.h"
+#include "ws2812b_tim1_1_pwm_dma.h"
 #include "paj7620u2.h"
 #include "main.h"
 
@@ -59,29 +59,29 @@
 /* Private functions **************************************************************************************************/
 
 enum {
-  MODE_IDLE = 0,
-  MODE_KEYUPDATE,
-  MODE_LEFT,
-  MODE_RIGHT,
-  MODE_FORWARD,
-  MODE_BACKWARD,
-  MODE_ON,
-  MODE_CLOSE,
-  MODE_BREATH,
-  MODE_MARQUEE,
+    MODE_IDLE = 0,
+    MODE_KEYUPDATE,
+    MODE_LEFT,
+    MODE_RIGHT,
+    MODE_FORWARD,
+    MODE_BACKWARD,
+    MODE_ON,
+    MODE_CLOSE,
+    MODE_BREATH,
+    MODE_MARQUEE,
 };
 KeyState_t KeyState;
 gesture_info_t gesture;
-u8 led_cur_on;
+u8 LedCurOn;
 u8 mode;
 u8 LastMode;
-extern u32 dma_idle;
-extern char voice_cmd;
+extern u32 DmaIdle;
+extern char VoiceCmd;
 EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
 static dma_color_t ColorBuf[LED_NUM + 4];
-extern uint16_t index_heart[215];
-extern uint16_t index_forward[113];
-extern uint16_t index_backward[116];
+extern uint16_t IndexHeart[215];
+extern uint16_t IndexForward[113];
+extern uint16_t IndexBackward[116];
 
 #define VOICE_IDLE 0x0
 #define VOICE_OPEN_LED 0x32
@@ -97,100 +97,85 @@ extern uint16_t index_backward[116];
   *********************************************************************************************************************/
 int main(void)
 {
-    static uint8_t led_index = 0;
+    static uint8_t LedIndex = 0;
     uint8_t KeyCount = 0;
     u8 gsdate[2];
     int r;
     u32 rgb;
 
     PLATFORM_Init();
-		GPIO_Configure();
+    GPIO_Configure();
     TIM1_8_Configure();
     I2C2_Configure();
     UART_Configure(921600);
 
     paj7620u2_init();
-		paj7620u2_init_gesture();
+    paj7620u2_init_gesture();
     EXTI_Configure();
     LED_CONFIG_ALL(0x000000);
-    led_cur_on = 0;
+    LedCurOn = 0;
     LastMode = mode = MODE_IDLE;
 
-    // while (1)
-    // {
-    //   UART_RxData_Interrupt(130);
-    //   while (UART_RxStruct.CompleteFlag != 1);
-    //   UART_RxStruct.Buffer[131] = '\0';
-    //   printf("%s\n", UART_RxStruct.Buffer);
-    // }
-    
-    while (1)
-    {
-        //gesture
-        // gesture.data = GS_Read_Status();
-        // if(!gesture.data) {
-        //     gesture.update = 1;
-        // }
+    while (1) {
         if (gesture.update) {
-                gesture.update = 0;
-                switch (gesture.data)
-                {
-                  case PAJ_UP:	
+            gesture.update = 0;
+            switch (gesture.data)
+            {
+                case PAJ_UP:	
                     // printf("Up\r\n");
                     break;
-                  case PAJ_DOWN:
+                case PAJ_DOWN:
                     // printf("Down\r\n");
                     break;
-                  case PAJ_LEFT:
+                case PAJ_LEFT:
                     mode = MODE_LEFT;
                     printf("Left\r\n");
-                  break;
-                  case PAJ_RIGHT:
+                    break;
+                case PAJ_RIGHT:
                     mode = MODE_RIGHT;
                     printf("Right\r\n");
-                  break;
-                  case PAJ_FORWARD:
+                    break;
+                case PAJ_FORWARD:
                     mode = MODE_FORWARD;
                     printf("Forward\r\n");
                     break;
-                  case PAJ_BACKWARD:
+                case PAJ_BACKWARD:
                     mode = MODE_BACKWARD;
                     printf("Backward\r\n");
                     break;
-                  case PAJ_CLOCKWISE:
+                case PAJ_CLOCKWISE:
                     // printf("Clockwise\r\n");
                     break;
-                  case PAJ_COUNT_CLOCKWISE:
+                case PAJ_COUNT_CLOCKWISE:
                     // printf("AntiClockwise\r\n");
                     break;
-                  case PAJ_WAVE:
+                case PAJ_WAVE:
                     // printf("Wave\r\n");
                     break;
-                  default:
+                default:
                     break;
-                }
+            }
         }
 
         //voice
-        switch (voice_cmd)
+        switch (VoiceCmd)
         {
-          case VOICE_OPEN_LED:
-            mode = MODE_ON;
-            break;
-          case VOICE_CLOSE_LED:
-            mode = MODE_CLOSE;
-            break;
-          case VOICE_MARQUEE:
-            mode = MODE_MARQUEE;
-            break;
-          case VOICE_BREATH:
-            mode = MODE_BREATH;
-            break;
-          
-          default:
-            break;
+            case VOICE_OPEN_LED:
+                mode = MODE_ON;
+                break;
+            case VOICE_CLOSE_LED:
+                mode = MODE_CLOSE;
+                break;
+            case VOICE_MARQUEE:
+                mode = MODE_MARQUEE;
+                break;
+            case VOICE_BREATH:
+                mode = MODE_BREATH;
+                break;
+            default:
+                break;
         }
-        voice_cmd = VOICE_IDLE;
+        VoiceCmd = VOICE_IDLE;
 
         //key
         KeyState.intr = 1;
@@ -200,130 +185,130 @@ int main(void)
         }
 
         if (LastMode != mode || mode == MODE_IDLE) {
-          led_index = 0;
+            LedIndex = 0;
         }
 
-        if (dma_idle) {
-          switch (mode)
-          {
-              case MODE_KEYUPDATE:
-                  if (/*KeyState.status*/ !led_cur_on) {
-                    printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
-                    PLATFORM_LED_Enable(LED1, ENABLE);
+        if (DmaIdle) {
+            switch (mode)
+            {
+                case MODE_KEYUPDATE:
+                    if (/*KeyState.status*/ !LedCurOn) {
+                        printf("yz debug %s-%d en\n", __FUNCTION__, __LINE__);
+                        PLATFORM_LED_Enable(LED1, ENABLE);
+                        LED_CONFIG_ALL(0xf00000);
+                        LedCurOn = 1;
+                    } else {
+                        printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
+                        PLATFORM_LED_Enable(LED1, DISABLE);
+                        LED_CONFIG_ALL(0x000000);
+                        LedCurOn = 0;
+                    }
+                    mode = MODE_IDLE;
+                    break;
+                case MODE_LEFT:
+                    // Marquee_R2L(0xf00000);
+                    if (LedIndex >= LED_NUM) {
+                        LedIndex = 0;
+                        mode = MODE_IDLE;
+                        break;
+                    }
+                    if (LedIndex == 0) {
+                        printf("MODE_LEFT\r\n");
+                        setAllColor_dma(ColorBuf, 0x000000);
+                    }
+                    setOneColor_dma(&ColorBuf[LED_NUM - 1 - LedIndex], 0x00f000);
+                    TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
+                    PLATFORM_DelayMS(30);
+                    setOneColor_dma(&ColorBuf[LED_NUM - 1 - LedIndex], 0x000000);
+                    LedIndex++;
+                    LedCurOn = 1;
+                    break;
+                case MODE_RIGHT:
+                    // Marquee_L2R(0xf00000);
+                    if (LedIndex >= LED_NUM) {
+                        LedIndex = 0;
+                        mode = MODE_IDLE;
+                        break;
+                    }
+                    if (LedIndex == 0) {
+                        printf("MODE_RIGHT\r\n");
+                        setAllColor_dma(ColorBuf, 0x000000);
+                    }
+                    setOneColor_dma(&ColorBuf[LedIndex], 0x0000f0);
+                    TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
+                    PLATFORM_DelayMS(30);
+                    setOneColor_dma(&ColorBuf[LedIndex], 0x000000);
+                    LedIndex++;
+                    LedCurOn = 1;
+                    break;
+                case MODE_FORWARD:
+                    // Forward(0xf00000);
+                    if (LedIndex >= sizeof(IndexForward) / sizeof(uint16_t)) {
+                        LedIndex = 0;
+                        mode = MODE_IDLE;
+                        break;
+                    }
+                    if (LedIndex == 0) {
+                        printf("MODE_FORWARD\r\n");
+                        setAllColor_dma(ColorBuf, 0x000000);
+                    }
+                    LED_LIGHT(0xf00000, IndexForward[LedIndex++]);
+                    LedCurOn = 1;
+                    break;
+                case MODE_BACKWARD:
+                    // Backward(0xf00000);
+                    if (LedIndex >= sizeof(IndexBackward) / sizeof(uint16_t)) {
+                        LedIndex = 0;
+                        mode = MODE_IDLE;
+                        break;
+                    }
+                    if (LedIndex == 0) {
+                        printf("MODE_BACKWARD\r\n");
+                    }
+                    LED_LIGHT(0xf00000, IndexBackward[LedIndex++]);
+                    LedCurOn = 0;
+                    break;
+                case MODE_ON:
+                    printf("MODE_ON\r\n");
                     LED_CONFIG_ALL(0xf00000);
-                    led_cur_on = 1;
-                  } else {
-                    printf("yz debug %s-%d dis\n", __FUNCTION__, __LINE__);
-                    PLATFORM_LED_Enable(LED1, DISABLE);
+                    LedCurOn = 1;
+                    mode = MODE_IDLE;
+                    break;
+                case MODE_CLOSE:
+                    printf("MODE_CLOSE\r\n");
                     LED_CONFIG_ALL(0x000000);
-                    led_cur_on = 0;
-                  }
-                  mode = MODE_IDLE;
-                  break;
-              case MODE_LEFT:
-                // Marquee_R2L(0xf00000);
-                if (led_index >= LED_NUM) {
-                  led_index = 0;
-                  mode = MODE_IDLE;
-                  break;
-                }
-                if (led_index == 0) {
-                  printf("MODE_LEFT\r\n");
-                  setAllColor_dma(ColorBuf, 0x000000);
-                }
-                setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], 0x00f000);
-                TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                PLATFORM_DelayMS(30);
-                setOneColor_dma(&ColorBuf[LED_NUM - 1 - led_index], 0x000000);
-                led_index++;
-                led_cur_on = 1;
-                break;
-              case MODE_RIGHT:
-                // Marquee_L2R(0xf00000);
-                if (led_index >= LED_NUM) {
-                  led_index = 0;
-                  mode = MODE_IDLE;
-                  break;
-                }
-                if (led_index == 0) {
-                  printf("MODE_RIGHT\r\n");
-                  setAllColor_dma(ColorBuf, 0x000000);
-                }
-                setOneColor_dma(&ColorBuf[led_index], 0x0000f0);
-                TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                PLATFORM_DelayMS(30);
-                setOneColor_dma(&ColorBuf[led_index], 0x000000);
-                led_index++;
-                led_cur_on = 1;
-                break;
-              case MODE_FORWARD:
-                // Forward(0xf00000);
-                if (led_index >= sizeof(index_forward) / sizeof(uint16_t)) {
-                  led_index = 0;
-                  mode = MODE_IDLE;
-                  break;
-                }
-                if (led_index == 0) {
-                  printf("MODE_FORWARD\r\n");
-                  setAllColor_dma(ColorBuf, 0x000000);
-                }
-                LED_LIGHT(0xf00000, index_forward[led_index++]);
-                led_cur_on = 1;
-                break;
-              case MODE_BACKWARD:
-                // Backward(0xf00000);
-                if (led_index >= sizeof(index_backward) / sizeof(uint16_t)) {
-                  led_index = 0;
-                  mode = MODE_IDLE;
-                  break;
-                }
-                if (led_index == 0) {
-                  printf("MODE_BACKWARD\r\n");
-                }
-                LED_LIGHT(0xf00000, index_backward[led_index++]);
-                led_cur_on = 0;
-                break;
-              case MODE_ON:
-                printf("MODE_ON\r\n");
-                LED_CONFIG_ALL(0xf00000);
-                led_cur_on = 1;
-                mode = MODE_IDLE;
-                break;
-              case MODE_CLOSE:
-                printf("MODE_CLOSE\r\n");
-                LED_CONFIG_ALL(0x000000);
-                led_cur_on = 0;
-                mode = MODE_IDLE;
-                break;
-              case MODE_BREATH:
-                if (led_index >= sizeof(index_heart) / sizeof(uint16_t)) {
-                  led_index = 0;
-                }
-                if (led_index == 0) {
-                  printf("MODE_BREATH\r\n");
-                }
-                LED_LIGHT(0xf00000, index_heart[led_index++]);
-                led_cur_on = 1;
-                break;
-              case MODE_MARQUEE:
-                // Marquee(0xf00000);
-                if (led_index >= LED_NUM) {
-                  led_index = 0;
-                }
-                if (led_index == 0) {
-                  printf("MODE_MARQUEE\r\n");
-                }
-                rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
-                setOneColor_dma(&ColorBuf[led_index], rgb);
-                TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                PLATFORM_DelayMS(5);
-                setOneColor_dma(&ColorBuf[led_index], 0x000000);
-                led_index++;
-                led_cur_on = 1;
-                break;
-              default:
-                break;
-          }
+                    LedCurOn = 0;
+                    mode = MODE_IDLE;
+                    break;
+                case MODE_BREATH:
+                    if (LedIndex >= sizeof(IndexHeart) / sizeof(uint16_t)) {
+                        LedIndex = 0;
+                    }
+                    if (LedIndex == 0) {
+                        printf("MODE_BREATH\r\n");
+                    }
+                    LED_LIGHT(0xf00000, IndexHeart[LedIndex++]);
+                      LedCurOn = 1;
+                      break;
+                case MODE_MARQUEE:
+                    // Marquee(0xf00000);
+                    if (LedIndex >= LED_NUM) {
+                        LedIndex = 0;
+                    }
+                    if (LedIndex == 0) {
+                        printf("MODE_MARQUEE\r\n");
+                    }
+                    rgb = (rand() % 255) << 16 | (rand() % 255) << 8 | (rand() % 255) ;
+                    setOneColor_dma(&ColorBuf[LedIndex], rgb);
+                    TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
+                    PLATFORM_DelayMS(5);
+                    setOneColor_dma(&ColorBuf[LedIndex], 0x000000);
+                    LedIndex++;
+                    LedCurOn = 1;
+                    break;
+                default:
+                    break;
+            }
         }
         LastMode = mode;
         r += 21;

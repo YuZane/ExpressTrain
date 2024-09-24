@@ -39,7 +39,7 @@
 #include "mm32f5330_it.h"
 
 
-extern u32 dma_idle;
+extern u32 DmaIdle;
 /**
   * @addtogroup MM32F5330_LibSamples
   * @{
@@ -223,8 +223,8 @@ void I2C2_IRQHandler(void)
   * @retval none
   *********************************************************************************************************************/
 #if 1
-char voice_cmdstr[] = "cmd_id:2";
-char voice_cmd;
+char VoiceCmdstr[] = "cmd_id:2";
+char VoiceCmd;
 
 void UART2_IRQHandler(void)
 {
@@ -236,10 +236,10 @@ void UART2_IRQHandler(void)
         // cmd_id:2
         // printf("%c", RxData);
         if (index >= 7) {
-            voice_cmd = RxData;
+            VoiceCmd = RxData;
             index = 0;
         }
-        if (RxData != voice_cmdstr[index]) {
+        if (RxData != VoiceCmdstr[index]) {
             index = 0;
         } else {
             index++;
@@ -438,7 +438,7 @@ void DMA1_CH2_IRQHandler(void)
         DMA_ClearITPendingBit(DMA2_IT_TC2);
         TIM_DMACmd(TIM1, TIM_DMA_CC1, DISABLE);
         TIM_Cmd(TIM1, DISABLE);
-        dma_idle = 1;
+        DmaIdle = 1;
         // printf("yz dma\r\n");
 
         // USART_TX_DMA_InterruptFlag = 1;
