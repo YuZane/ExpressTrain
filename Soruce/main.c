@@ -216,7 +216,7 @@ int main(void)
                     }
                     setOneColor_dma(&ColorBuf[LED_NUM - 1 - LedIndex], 0x00f000);
                     TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                    PLATFORM_DelayMS(30);
+                    PLATFORM_DelayMS(20);
                     setOneColor_dma(&ColorBuf[LED_NUM - 1 - LedIndex], 0x000000);
                     LedIndex++;
                     LedCurOn = 1;
@@ -234,7 +234,7 @@ int main(void)
                     }
                     setOneColor_dma(&ColorBuf[LedIndex], 0x0000f0);
                     TIM1_DMA_Interrupt((u32 *)ColorBuf, (LED_NUM + 2) * 24);
-                    PLATFORM_DelayMS(30);
+                    PLATFORM_DelayMS(20);
                     setOneColor_dma(&ColorBuf[LedIndex], 0x000000);
                     LedIndex++;
                     LedCurOn = 1;
