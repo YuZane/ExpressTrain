@@ -73,6 +73,7 @@ KeyState_t KeyState;
 gesture_info_t gesture;
 u8 led_cur_on;
 u8 mode;
+u8 LastMode;
 extern u32 dma_idle;
 extern char voice_cmd;
 EXTERN volatile UART_RxTx_TypeDef UART_RxStruct;
@@ -104,7 +105,7 @@ int main(void)
     EXTI_Configure();
     LED_CONFIG_ALL(0x000000);
     led_cur_on = 0;
-    mode = MODE_IDLE;
+    LastMode = mode = MODE_IDLE;
 
     while (1)
     {
