@@ -33,12 +33,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "platform.h"
-#include "i2c_master_interrupt.h"
 #include "i2c_master_polling.h"
 #include "uart_interrupt.h"
 #include "gpio_key_input.h"
 #include "exti_interrupt.h"
-#include "tim2_5_timebase.h"
 #include "ws2812b_tim1_1_pwm_dma.h"
 #include "paj7620u2.h"
 #include "main.h"
@@ -242,7 +240,11 @@ int main(void)
                     LedCurOn = 1;
                     break;
                 case MODE_FORWARD:
-                    // Forward(0xf00000);
+                    #if 0
+                    LedIndex = 0;
+                    mode = MODE_IDLE;
+                    Forward(0xf00000);
+                    #else
                     if (LedIndex >= sizeof(IndexForward) / sizeof(uint16_t)) {
                         LedIndex = 0;
                         mode = MODE_IDLE;
@@ -252,11 +254,16 @@ int main(void)
                         printf("MODE_FORWARD\r\n");
                         setAllColor_dma(ColorBuf, 0x000000);
                     }
-                    LED_LIGHT(0xf00000, IndexForward[LedIndex++]);
+                    LED_LIGHT(0xf00000, IndexForward[LedIndex++], 5);
+                    #endif
                     LedCurOn = 1;
                     break;
                 case MODE_BACKWARD:
-                    // Backward(0xf00000);
+                    #if 0
+                    LedIndex = 0;
+                    mode = MODE_IDLE;
+                    Backward(0xf00000);
+                    #else
                     if (LedIndex >= sizeof(IndexBackward) / sizeof(uint16_t)) {
                         LedIndex = 0;
                         mode = MODE_IDLE;
@@ -265,7 +272,8 @@ int main(void)
                     if (LedIndex == 0) {
                         printf("MODE_BACKWARD\r\n");
                     }
-                    LED_LIGHT(0xf00000, IndexBackward[LedIndex++]);
+                    LED_LIGHT(0xf00000, IndexBackward[LedIndex++], 5);
+                    #endif
                     LedCurOn = 0;
                     break;
                 case MODE_ON:
@@ -287,9 +295,9 @@ int main(void)
                     if (LedIndex == 0) {
                         printf("MODE_BREATH\r\n");
                     }
-                    LED_LIGHT(0xf00000, IndexHeart[LedIndex++]);
-                      LedCurOn = 1;
-                      break;
+                    LED_LIGHT(0xf00000, IndexHeart[LedIndex++], 10);
+                    LedCurOn = 1;
+                    break;
                 case MODE_MARQUEE:
                     // Marquee(0xf00000);
                     if (LedIndex >= LED_NUM) {

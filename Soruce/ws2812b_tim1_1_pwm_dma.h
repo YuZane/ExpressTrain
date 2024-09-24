@@ -73,6 +73,7 @@ void Backward(u32 rgb);
 void setOneColor_dma(dma_color_t *color, uint32_t rgb);
 void setAllColor_dma(dma_color_t *color, uint32_t rgb);
 void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length);
+void LED_LIGHT(u32 rgb, u8 light, u32 time_ms);
 #ifdef __cplusplus
 }
 #endif

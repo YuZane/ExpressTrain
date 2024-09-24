@@ -425,19 +425,14 @@
               <FilePath>..\paj7620u2.c</FilePath>
             </File>
             <File>
-              <FileName>tim2_5_timebase.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\tim2_5_timebase.c</FilePath>
-            </File>
-            <File>
-              <FileName>tim1_8_pwm_output.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\tim1_8_pwm_output.c</FilePath>
-            </File>
-            <File>
               <FileName>rgbandhsv.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\rgbandhsv.c</FilePath>
+            </File>
+            <File>
+              <FileName>ws2812b_tim1_1_pwm_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\ws2812b_tim1_1_pwm_dma.c</FilePath>
             </File>
           </Files>
         </Group>

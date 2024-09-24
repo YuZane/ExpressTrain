@@ -230,7 +230,7 @@ void Marquee_R2L(u32 rgb)
 }
 
 /* light 0-255 */
-void LED_LIGHT(u32 rgb, u8 light) {
+void LED_LIGHT(u32 rgb, u8 light, u32 time_ms) {
     u32 rgbout;
     float h, s, v;
     uint8_t r, g, b;
@@ -249,7 +249,7 @@ void LED_LIGHT(u32 rgb, u8 light) {
     // printf("yz debug %s-%d rgbout %d\n", __FUNCTION__, __LINE__, rgbout);
 
     LED_CONFIG_ALL(rgbout);
-    PLATFORM_DelayMS(10);
+    PLATFORM_DelayMS(time_ms);
 }
 
 void Breath(u32 rgb)
@@ -257,7 +257,7 @@ void Breath(u32 rgb)
     int i;
     for (i = 0; i < sizeof(IndexHeart) / sizeof(uint16_t); i++)
     {
-        LED_LIGHT(rgb, IndexHeart[i]);
+        LED_LIGHT(rgb, IndexHeart[i], 10);
     }
 }
 
@@ -267,7 +267,7 @@ void Forward(u32 rgb)
     setAllColor_dma(ColorBuf[2], 0x000000);
     for (i = 0; i < sizeof(IndexForward) / sizeof(uint16_t); i++)
     {
-        LED_LIGHT(rgb, IndexForward[i]);
+        LED_LIGHT(rgb, IndexForward[i], 5);
     }
 }
 
@@ -277,7 +277,7 @@ void Backward(u32 rgb)
     setAllColor_dma(ColorBuf[2], 0x000000);
     for (i = 0; i < sizeof(IndexBackward) / sizeof(uint16_t); i++)
     {
-        LED_LIGHT(rgb, IndexBackward[i]);
+        LED_LIGHT(rgb, IndexBackward[i], 5);
     }
 }
 
