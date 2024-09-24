@@ -37,6 +37,21 @@ extern "C" {
 /* Files include */
 #include "hal_conf.h"
 
+#define LED_NUM 60
+#define LED_HIGH (140)
+#define LED_LOW (60)
+typedef struct {
+    u32 G[8];
+    u32 R[8];
+    u32 B[8];
+}dma_color_t;
+
+typedef struct {
+	u8 R;
+	u8 G;
+	u8 B;
+}color_rgb_t;
+
 /* Exported types *****************************************************************************************************/
 
 /* Exported constants *************************************************************************************************/
@@ -55,6 +70,9 @@ void Marquee_R2L(u32 rgb);
 void Breath(u32 rgb);
 void Forward(u32 rgb);
 void Backward(u32 rgb);
+void setOneColor_dma(dma_color_t *color, uint32_t rgb);
+void setAllColor_dma(dma_color_t *color, uint32_t rgb);
+void TIM1_DMA_Interrupt(uint32_t *Buffer, uint32_t Length);
 #ifdef __cplusplus
 }
 #endif
