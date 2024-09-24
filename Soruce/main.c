@@ -253,6 +253,7 @@ int main(void)
                 if (led_index >= sizeof(index_forward) / sizeof(uint16_t)) {
                   led_index = 0;
                   mode = MODE_IDLE;
+									break;
                 }
                 if (led_index == 0) {
                   setAllColor_dma(ColorBuf, 0x000000);
@@ -264,6 +265,7 @@ int main(void)
                 if (led_index >= sizeof(index_backward) / sizeof(uint16_t)) {
                   led_index = 0;
                   mode = MODE_IDLE;
+									break;
                 }
                 LED_LIGHT(rgb, index_backward[led_index++]);
                 break;
